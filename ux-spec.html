@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>t.Co — UX Specification</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+
+/* ═══ TOKENS ══════════════════════════════════════════════════ */
+:root,[data-theme="dark"]{
+  --bg:#07091A; --bg2:#0B0D20; --surface:#0E1428; --card:#111830; --card2:#141C38;
+  --text:#E4DDD0; --text-muted:#8A8070; --text-dim:#4A4238;
+  --gold:#C8A44A; --gold-pale:rgba(200,164,74,0.07); --gold-dim:rgba(200,164,74,0.22);
+  --blue:#3B82B6; --blue-pale:rgba(59,130,182,0.08);
+  --teal:#2ABFB0; --teal-pale:rgba(42,191,176,0.08);
+  --purple:#8B5CF6; --purple-pale:rgba(139,92,246,0.08);
+  --green:#2DAA6A; --green-pale:rgba(45,170,106,0.08);
+  --red:#E05252; --red-pale:rgba(224,82,82,0.08);
+  --orange:#F59E0B; --orange-pale:rgba(245,158,11,0.08);
+  --border:rgba(200,164,74,0.13); --border2:rgba(255,255,255,0.055);
+  --divider:rgba(200,164,74,0.08); --nav-bg:rgba(7,9,26,0.93);
+  --code-bg:#080A1A;
+}
+[data-theme="light"]{
+  --bg:#F6F3EE; --bg2:#EDEAE3; --surface:#FFFFFF; --card:#FDFAF5; --card2:#F5F0E8;
+  --text:#1A1410; --text-muted:#6B5C48; --text-dim:#B0A090;
+  --gold:#8A6820; --gold-pale:rgba(138,104,32,0.07); --gold-dim:rgba(138,104,32,0.18);
+  --blue:#2A5F8A; --blue-pale:rgba(42,95,138,0.07);
+  --teal:#256E64; --teal-pale:rgba(37,110,100,0.07);
+  --purple:#6B46C1; --purple-pale:rgba(107,70,193,0.07);
+  --green:#276944; --green-pale:rgba(39,105,68,0.07);
+  --red:#B91C1C; --red-pale:rgba(185,28,28,0.07);
+  --orange:#B45309; --orange-pale:rgba(180,83,9,0.07);
+  --border:rgba(138,104,32,0.13); --border2:rgba(0,0,0,0.06);
+  --divider:rgba(138,104,32,0.09); --nav-bg:rgba(246,243,238,0.93);
+  --code-bg:#F0EDE8;
+}
+
+/* ═══ RESET ═══════════════════════════════════════════════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:14px;
+  line-height:1.7;min-height:100vh;
+  transition:background .35s,color .35s;overflow-x:hidden;}
+a{text-decoration:none;color:inherit;}
+code,pre,.mono{font-family:'DM Mono',monospace;}
+
+/* ═══ NAV ═════════════════════════════════════════════════════ */
+.nav{
+  position:fixed;top:0;right:0;left:0;z-index:200;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  background:var(--nav-bg);border-bottom:1px solid var(--border);
+  height:52px;display:flex;align-items:center;padding:0 40px;
+}
+.nav-inner{max-width:1160px;width:100%;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:20px;
+  font-weight:500;color:var(--gold);}
+.nav-title{font-size:12px;color:var(--text-muted);letter-spacing:1px;}
+.nav-actions{display:flex;align-items:center;gap:8px;}
+.nav-back{font-size:12px;color:var(--text-muted);display:flex;align-items:center;
+  gap:5px;padding:5px 12px;border:1px solid var(--border);
+  border-radius:20px;transition:all .2s;}
+.nav-back:hover{border-color:var(--gold);color:var(--gold);}
+.theme-btn{width:34px;height:34px;border-radius:50%;
+  border:1px solid var(--border);background:transparent;
+  cursor:pointer;display:flex;align-items:center;
+  justify-content:center;font-size:14px;transition:all .2s;position:relative;}
+.theme-btn:hover{border-color:var(--gold);}
+.theme-btn.is-system::after{content:'';position:absolute;bottom:2px;right:2px;
+  width:5px;height:5px;border-radius:50%;background:var(--gold);border:1px solid var(--bg);}
+
+/* ═══ COVER ════════════════════════════════════════════════════ */
+.cover{
+  border-bottom:1px solid var(--border);
+  padding:100px 40px 64px;
+  background:radial-gradient(ellipse at 40% 30%, var(--bg2) 0%, var(--bg) 65%);
+  position:relative;overflow:hidden;
+}
+.cover-grid{position:absolute;inset:0;
+  background-image:linear-gradient(var(--divider) 1px,transparent 1px),
+    linear-gradient(90deg,var(--divider) 1px,transparent 1px);
+  background-size:50px 50px;
+  mask-image:radial-gradient(ellipse 70% 90% at 30% 40%,black 10%,transparent 100%);
+  -webkit-mask-image:radial-gradient(ellipse 70% 90% at 30% 40%,black 10%,transparent 100%);
+  pointer-events:none;opacity:.5;}
+.cover-inner{max-width:1160px;margin:0 auto;position:relative;}
+.cover-tag{font-size:10px;letter-spacing:4px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:20px;}
+.cover h1{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,5vw,68px);
+  font-weight:300;color:var(--text);line-height:1.05;letter-spacing:-1px;
+  margin-bottom:10px;}
+.cover h1 em{color:var(--gold);font-style:italic;}
+.cover-sub{font-size:16px;color:var(--text-muted);max-width:560px;
+  margin-bottom:40px;font-weight:300;line-height:1.6;}
+.cover-meta-row{display:flex;gap:40px;flex-wrap:wrap;}
+.cover-meta-item label{display:block;font-size:10px;letter-spacing:3px;
+  text-transform:uppercase;color:var(--text-dim);margin-bottom:3px;}
+.cover-meta-item span{font-family:'Cormorant Garamond',serif;
+  font-size:17px;color:var(--text-muted);}
+.cover-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:32px;}
+.badge{font-size:10px;letter-spacing:1px;padding:3px 10px;
+  border-radius:3px;font-family:'DM Mono',monospace;}
+.badge-impl{background:var(--green-pale);color:var(--green);border:1px solid rgba(45,170,106,0.25);}
+.badge-conc{background:var(--card);color:var(--text-dim);border:1px solid var(--border2);}
+
+/* ═══ TOC ══════════════════════════════════════════════════════ */
+.toc-wrap{background:var(--surface);border-bottom:1px solid var(--border);padding:36px 40px;}
+.toc-wrap .inner{max-width:1160px;margin:0 auto;}
+.toc-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:18px;}
+.toc-list{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);}
+.toc-item{background:var(--bg);padding:14px 20px;display:block;transition:background .2s;}
+.toc-item:hover{background:var(--gold-pale);}
+.toc-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--gold);margin-bottom:3px;}
+.toc-name{font-size:13px;color:var(--text-muted);}
+
+/* ═══ SECTION COMMONS ══════════════════════════════════════════ */
+.section{max-width:1160px;margin:0 auto;padding:64px 40px;}
+.section+.section{border-top:1px solid var(--divider);}
+.section-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:12px;font-family:'DM Mono',monospace;}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,3.5vw,46px);
+  font-weight:400;color:var(--text);margin-bottom:20px;line-height:1.1;letter-spacing:-0.5px;}
+.section-body{color:var(--text-muted);line-height:1.85;max-width:700px;font-size:14px;}
+.section-body p+p{margin-top:12px;}
+
+/* ═══ PERSONAS ═════════════════════════════════════════════════ */
+.persona-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:16px;margin-top:32px;}
+.persona-card{background:var(--surface);border:1px solid var(--border2);
+  border-radius:6px;padding:24px;position:relative;overflow:hidden;}
+.persona-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.pc-blue::after{background:var(--blue);}
+.pc-teal::after{background:var(--teal);}
+.pc-purple::after{background:var(--purple);}
+.persona-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px;}
+.persona-avatar{font-size:30px;line-height:1;flex-shrink:0;}
+.persona-name{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:500;color:var(--text);}
+.persona-role{font-size:11px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--text-dim);margin-top:2px;}
+.persona-traits{list-style:none;border-top:1px solid var(--divider);padding-top:14px;}
+.persona-traits li{font-size:12px;color:var(--text-muted);padding:4px 0;
+  border-bottom:1px solid var(--divider);display:flex;gap:8px;align-items:flex-start;}
+.persona-traits li:last-child{border-bottom:none;}
+.persona-traits li::before{content:'›';color:var(--gold);flex-shrink:0;font-size:14px;line-height:1.4;}
+.persona-goal{margin-top:14px;padding:10px 12px;background:var(--gold-pale);
+  border-radius:3px;font-size:12px;color:var(--text-muted);border-left:2px solid var(--gold-dim);}
+.persona-goal strong{color:var(--gold);font-weight:500;}
+
+/* ═══ JOURNEYS ═════════════════════════════════════════════════ */
+.journey{margin-top:56px;padding-top:40px;border-top:1px solid var(--divider);}
+.journey:first-of-type{margin-top:32px;padding-top:0;border-top:none;}
+.journey-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:28px;}
+.journey-id{font-family:'DM Mono',monospace;font-size:11px;
+  padding:4px 10px;border-radius:3px;flex-shrink:0;margin-top:4px;}
+.j1-id{background:var(--blue-pale);color:var(--blue);border:1px solid rgba(59,130,182,0.25);}
+.j2-id{background:var(--teal-pale);color:var(--teal);border:1px solid rgba(42,191,176,0.25);}
+.j3-id{background:var(--gold-pale);color:var(--gold);border:1px solid var(--gold-dim);}
+.j4-id{background:var(--purple-pale);color:var(--purple);border:1px solid rgba(139,92,246,0.25);}
+.j5-id{background:var(--orange-pale);color:var(--orange);border:1px solid rgba(245,158,11,0.25);}
+.journey-meta h3{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:var(--text);}
+.journey-meta-row{display:flex;flex-wrap:wrap;gap:16px;margin-top:6px;font-size:12px;color:var(--text-dim);}
+.journey-meta-row span{display:flex;align-items:center;gap:5px;}
+.agent-chip{font-family:'DM Mono',monospace;font-size:10px;
+  padding:2px 7px;border-radius:2px;border:1px solid var(--border2);
+  background:var(--card);color:var(--text-dim);}
+.agent-chip.impl{background:var(--green-pale);color:var(--green);border-color:rgba(45,170,106,0.25);}
+.agent-chip.conc{background:var(--card2);color:var(--text-dim);border-color:var(--border2);}
+
+/* Steps */
+.steps{display:grid;gap:0;position:relative;margin-top:4px;}
+.steps::before{content:'';position:absolute;left:19px;top:28px;bottom:28px;
+  width:1px;background:var(--divider);}
+.step{display:flex;gap:16px;padding:12px 0;align-items:flex-start;}
+.step-num{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;
+  font-family:'DM Mono',monospace;background:var(--surface);
+  border:1px solid var(--border);color:var(--text-dim);z-index:1;}
+.step:hover .step-num{border-color:var(--gold);color:var(--gold);}
+.step-body{flex:1;padding-top:10px;}
+.step-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:3px;}
+.step-desc{font-size:13px;color:var(--text-muted);line-height:1.65;}
+.step-tech{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;}
+.step-api{font-family:'DM Mono',monospace;font-size:10px;
+  padding:1px 7px;border-radius:2px;border:1px solid var(--border2);
+  background:var(--code-bg);color:var(--text-dim);}
+.step-emotion{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:var(--text-dim);}
+.emo-bar{height:3px;border-radius:2px;background:var(--divider);width:60px;overflow:hidden;flex-shrink:0;}
+.emo-fill{height:100%;border-radius:2px;}
+.emo-pos .emo-fill{background:var(--green);}
+.emo-neu .emo-fill{background:var(--gold);}
+.emo-neg .emo-fill{background:var(--red);}
+
+/* Edge cases inside journey */
+.edge-box{background:var(--bg2);border:1px solid var(--border);
+  border-radius:4px;padding:16px 20px;margin-top:16px;}
+.edge-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;}
+.edge-row{font-size:12px;color:var(--text-muted);padding:5px 0;
+  border-bottom:1px solid var(--divider);display:flex;gap:8px;align-items:flex-start;}
+.edge-row:last-child{border-bottom:none;}
+.edge-row::before{content:'⚠';font-size:10px;color:var(--orange);flex-shrink:0;margin-top:1px;}
+
+/* ═══ INFORMATION ARCHITECTURE ═════════════════════════════════ */
+.ia-wrap{background:var(--bg2);border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);}
+.ia-inner{max-width:1160px;margin:0 auto;padding:64px 40px;}
+.ia-diagram{margin-top:36px;display:grid;gap:10px;}
+.ia-core{display:flex;align-items:center;gap:20px;
+  background:var(--surface);border:1px solid var(--gold-dim);
+  border-radius:6px;padding:18px 24px;}
+.ia-core-icon{font-size:28px;line-height:1;flex-shrink:0;}
+.ia-core-name{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold);}
+.ia-core-desc{font-size:12px;color:var(--text-muted);margin-top:2px;font-family:'DM Mono',monospace;}
+.ia-stages{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.ia-stage{background:var(--surface);border:1px solid var(--border2);
+  border-radius:4px;padding:16px 18px;position:relative;}
+.ia-stage::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:2px 2px 0 0;}
+.s1::before{background:var(--blue);}
+.s2::before{background:var(--teal);}
+.s3::before{background:var(--gold);}
+.s4::before{background:var(--purple);}
+.ia-stage-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;
+  text-transform:uppercase;margin-bottom:6px;}
+.s1 .ia-stage-label{color:var(--blue);}
+.s2 .ia-stage-label{color:var(--teal);}
+.s3 .ia-stage-label{color:var(--gold);}
+.s4 .ia-stage-label{color:var(--purple);}
+.ia-stage-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:10px;}
+.ia-items{list-style:none;}
+.ia-items li{font-size:11px;color:var(--text-muted);padding:3px 0;
+  border-bottom:1px solid var(--divider);display:flex;gap:6px;}
+.ia-items li:last-child{border-bottom:none;}
+.ia-items li::before{content:'·';color:var(--gold);flex-shrink:0;}
+
+/* Data model */
+.data-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+  gap:14px;margin-top:32px;}
+.data-entity{background:var(--surface);border:1px solid var(--border2);border-radius:4px;overflow:hidden;}
+.de-head{padding:12px 16px;border-bottom:1px solid var(--border2);
+  display:flex;align-items:center;gap:8px;background:var(--card);}
+.de-icon{font-size:16px;}
+.de-name{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--text);}
+.de-body{padding:10px 0;}
+.de-field{font-size:11px;padding:4px 16px;border-bottom:1px solid var(--divider);
+  display:flex;justify-content:space-between;align-items:center;font-family:'DM Mono',monospace;}
+.de-field:last-child{border-bottom:none;}
+.de-fname{color:var(--text-muted);}
+.de-ftype{color:var(--text-dim);font-size:10px;}
+.de-field.pk .de-fname::before{content:'🔑 ';font-size:9px;}
+.de-field.fk .de-fname::before{content:'→ ';color:var(--blue);}
+
+/* ═══ FLOW DIAGRAMS ════════════════════════════════════════════ */
+.flow-section{background:var(--bg);padding:0 0 64px;}
+.flow-inner{max-width:1160px;margin:0 auto;padding:0 40px;}
+.flow-block{margin-top:56px;padding-top:48px;border-top:1px solid var(--divider);}
+.flow-block:first-of-type{margin-top:32px;padding-top:0;border-top:none;}
+.flow-title{font-family:'Cormorant Garamond',serif;font-size:22px;
+  font-weight:400;color:var(--text);margin-bottom:8px;}
+.flow-subtitle{font-size:12px;color:var(--text-muted);margin-bottom:20px;
+  font-family:'DM Mono',monospace;}
+.flow-wrap{background:var(--surface);border:1px solid var(--border);
+  border-radius:6px;padding:28px;overflow-x:auto;}
+.flow-wrap svg{display:block;min-width:100%;}
+.flow-legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px;
+  padding:12px 16px;background:var(--bg2);border-radius:3px;border:1px solid var(--border);}
+.leg-item{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text-muted);}
+.leg-swatch{width:20px;height:2px;border-radius:1px;}
+.leg-box{width:14px;height:10px;border-radius:2px;border:1px solid;}
+
+/* ═══ EDGE CASE MATRIX ══════════════════════════════════════════ */
+.ec-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:28px;}
+.ec-table thead tr{border-bottom:1px solid var(--border);}
+.ec-table th{padding:10px 14px;text-align:left;font-weight:500;
+  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--gold);font-family:'DM Mono',monospace;}
+.ec-table td{padding:12px 14px;border-bottom:1px solid var(--divider);
+  color:var(--text-muted);vertical-align:top;}
+.ec-table tr:last-child td{border-bottom:none;}
+.ec-table tr:hover td{background:var(--gold-pale);}
+.pri{font-family:'DM Mono',monospace;font-size:11px;font-weight:600;}
+.p0{color:var(--red);}
+.p1{color:var(--orange);}
+.p2{color:var(--text-muted);}
+.mono-sm{font-family:'DM Mono',monospace;font-size:10px;}
+
+/* ═══ FOOTER ═══════════════════════════════════════════════════ */
+.doc-footer{text-align:center;padding:40px;border-top:1px solid var(--border);}
+.doc-footer p{font-size:11px;color:var(--text-muted);
+  letter-spacing:1px;font-family:'DM Mono',monospace;}
+
+/* ═══ REVEAL ════════════════════════════════════════════════════ */
+.reveal{opacity:0;transform:translateY(18px);
+  transition:opacity .65s cubic-bezier(.16,1,.3,1),transform .65s cubic-bezier(.16,1,.3,1);}
+.reveal.visible{opacity:1;transform:none;}
+.rd1{transition-delay:.06s;}.rd2{transition-delay:.12s;}
+.rd3{transition-delay:.18s;}.rd4{transition-delay:.24s;}
+
+/* ═══ RESPONSIVE ════════════════════════════════════════════════ */
+@media(max-width:900px){
+  .nav{padding:0 20px;}
+  .cover,.section,.ia-inner,.flow-inner{padding-left:20px;padding-right:20px;}
+  .toc-list{grid-template-columns:repeat(2,1fr);}
+  .ia-stages{grid-template-columns:repeat(2,1fr);}
+  .persona-grid{grid-template-columns:1fr;}
+  .data-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:600px){
+  .toc-list{grid-template-columns:1fr;}
+  .ia-stages{grid-template-columns:1fr;}
+  .data-grid{grid-template-columns:1fr;}
+  .cover-meta-row{gap:20px;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <a href="index.html" class="nav-logo">t.Co</a>
+      <span class="nav-title">UX Specification v1.0</span>
+    </div>
+    <div class="nav-actions">
+      <a href="index.html" class="nav-back">← Index</a>
+      <button class="theme-btn is-system" id="themeBtn"><span id="themeIcon">💻</span></button>
+    </div>
+  </div>
+</nav>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-grid"></div>
+  <div class="cover-inner">
+    <div class="cover-tag">UX SPECIFICATION · DESIGN FOR TECHNOLOGICAL ENVIRONMENTS</div>
+    <h1>t.Co — <em>Intelligent Personal</em><br>Travel Agent</h1>
+    <p class="cover-sub">User Journeys · Information Architecture · Data Model · Technical Flow Diagrams with API Calls & Agent Handoffs</p>
+    <div class="cover-meta-row">
+      <div class="cover-meta-item">
+        <label>Institution</label>
+        <span>HIT — Holon Institute of Technology</span>
+      </div>
+      <div class="cover-meta-item">
+        <label>Document</label>
+        <span>UX Specification v1.0</span>
+      </div>
+      <div class="cover-meta-item">
+        <label>Academic Year</label>
+        <span>2025–2026</span>
+      </div>
+    </div>
+    <div class="cover-badges">
+      <span class="badge badge-impl">✓ AGT-01 Implemented</span>
+      <span class="badge badge-impl">✓ AGT-02 Implemented</span>
+      <span class="badge badge-impl">✓ AGT-06 Implemented</span>
+      <span class="badge badge-conc">○ AGT-03–05, 07–11 Conceptual</span>
+    </div>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc-wrap">
+  <div class="inner">
+    <div class="toc-label">Contents</div>
+    <div class="toc-list">
+      <a href="#personas"  class="toc-item"><div class="toc-num">01</div><div class="toc-name">User Personas</div></a>
+      <a href="#journeys"  class="toc-item"><div class="toc-num">02</div><div class="toc-name">User Journeys (J1–J5)</div></a>
+      <a href="#ia"        class="toc-item"><div class="toc-num">03</div><div class="toc-name">Information Architecture</div></a>
+      <a href="#datamodel" class="toc-item"><div class="toc-num">04</div><div class="toc-name">Data Model</div></a>
+      <a href="#flows"     class="toc-item"><div class="toc-num">05</div><div class="toc-name">Flow Diagrams — Technical</div></a>
+      <a href="#edgecases" class="toc-item"><div class="toc-num">06</div><div class="toc-name">Edge Case Matrix</div></a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+  01 — PERSONAS
+════════════════════════════════════════ -->
+<div class="section" id="personas">
+  <div class="section-label">01 — User Personas</div>
+  <h2 class="section-title">Who Uses t.Co?</h2>
+  <div class="section-body">
+    <p>Three primary personas represent the system's target audience. They are grounded in research and serve as the foundation for every design and specification decision in this document.</p>
+  </div>
+  <div class="persona-grid">
+
+    <div class="persona-card pc-blue reveal rd1">
+      <div class="persona-header">
+        <div class="persona-avatar">👩‍💼</div>
+        <div>
+          <div class="persona-name">Dana, 34</div>
+          <div class="persona-role">Product Manager · Tel Aviv</div>
+        </div>
+      </div>
+      <ul class="persona-traits">
+        <li>Travels 4–6×/year for business and leisure</li>
+        <li>Limited time — wants pre-organized, friction-free trips</li>
+        <li>Values personal recommendations over tourist traps</li>
+        <li>Advanced tech user; comfortable with voice interfaces</li>
+        <li>Loyal to specific hotel chains and airlines</li>
+      </ul>
+      <div class="persona-goal"><strong>Goal:</strong> "Plan me a trip that feels handcrafted, not algorithmic."</div>
+    </div>
+
+    <div class="persona-card pc-teal reveal rd2">
+      <div class="persona-header">
+        <div class="persona-avatar">🧑‍🎓</div>
+        <div>
+          <div class="persona-name">Yoav, 26</div>
+          <div class="persona-role">Graduate Student · Haifa</div>
+        </div>
+      </div>
+      <ul class="persona-traits">
+        <li>Budget-conscious; prioritizes authentic local experiences</li>
+        <li>Strong interest in local culture and language immersion</li>
+        <li>Spontaneous — happy to change plans mid-trip</li>
+        <li>Relies on peer recommendations and social media</li>
+        <li>Comfortable with voice but prefers chat for privacy in public</li>
+      </ul>
+      <div class="persona-goal"><strong>Goal:</strong> "Show me what locals actually see and eat."</div>
+    </div>
+
+    <div class="persona-card pc-purple reveal rd3">
+      <div class="persona-header">
+        <div class="persona-avatar">👨‍👩‍👧</div>
+        <div>
+          <div class="persona-name">Racheli & Amir, 42/44</div>
+          <div class="persona-role">Family — Two kids (6 & 9) · Ra'anana</div>
+        </div>
+      </div>
+      <ul class="persona-traits">
+        <li>Travel 2×/year; highly sensitive to schedule disruptions</li>
+        <li>Require flexibility and contingency planning</li>
+        <li>Need age-appropriate activities for mixed-age children</li>
+        <li>Moderate tech users; prefer simple, reassuring UX</li>
+        <li>Strong preference for pre-confirmed, reliable bookings</li>
+      </ul>
+      <div class="persona-goal"><strong>Goal:</strong> "A trip everyone enjoys, with zero nasty surprises."</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+  02 — USER JOURNEYS
+════════════════════════════════════════ -->
+<div class="section" id="journeys">
+  <div class="section-label">02 — User Journeys</div>
+  <h2 class="section-title">Five Core Journeys</h2>
+  <div class="section-body">
+    <p>Each journey maps a complete usage scenario: steps, user emotion state, system actions, and active agents. J1, J2, and J4 are fully implemented in the exhibition demo. J3 and J5 are documented for architectural completeness and future development.</p>
+  </div>
+
+  <!-- J1 -->
+  <div class="journey reveal" id="j1">
+    <div class="journey-header">
+      <span class="journey-id j1-id">J1</span>
+      <div class="journey-meta">
+        <h3>Planning an Itinerary from Scratch</h3>
+        <div class="journey-meta-row">
+          <span>Persona: Dana</span>
+          <span>Duration: 8–15 min</span>
+          <span>Channel: voice + text</span>
+          <span>Status: <span class="badge badge-impl" style="font-size:9px;">✓ Implemented</span></span>
+        </div>
+        <div class="journey-meta-row" style="margin-top:6px;">
+          <span class="agent-chip impl">AGT-01 Profiling</span>
+          <span class="agent-chip impl">AGT-02 Itinerary</span>
+        </div>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">App Open — First-Time Detection</div>
+          <div class="step-desc">System checks <code>user_profile</code> in PostgreSQL. No record found → new user flow initiated. Orchestrator dispatches AGT-01 with context: <code>{session_id, timestamp, locale}</code>.</div>
+          <div class="step-tech">
+            <span class="step-api">PostgreSQL: SELECT user_profile WHERE user_id</span>
+            <span class="step-api">→ NULL → new_user_flow()</span>
+          </div>
+          <div class="step-emotion emo-pos"><span>Anticipation</span><div class="emo-bar"><div class="emo-fill" style="width:70%"></div></div></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">Conversational Preference Profiling</div>
+          <div class="step-desc">AGT-01 conducts adaptive dialogue to extract 5 preference dimensions: destination intent, budget range, travel style, interests[], and constraints[]. Each response is parsed and stored incrementally. Profile confidence score computed after each turn.</div>
+          <div class="step-tech">
+            <span class="step-api">AGT-01 → Claude API: extract_preferences(message)</span>
+            <span class="step-api">→ ChromaDB: upsert preference_vector</span>
+            <span class="step-api">confidence_score ≥ 0.75 → trigger AGT-02</span>
+          </div>
+          <div class="step-emotion emo-pos"><span>Engaged</span><div class="emo-bar"><div class="emo-fill" style="width:85%"></div></div></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">Itinerary Generation — Real-Time</div>
+          <div class="step-desc">Orchestrator hands off <code>preference_profile</code> to AGT-02. AGT-02 calls Google Places for POIs, OpenAI for activity scoring, and assembles a day-by-day itinerary. Results stream to the frontend map in real time via WebSocket.</div>
+          <div class="step-tech">
+            <span class="step-api">AGT-02 → Google Places API: nearby_search(destination, interests)</span>
+            <span class="step-api">AGT-02 → Claude API: rank_and_narrate(POIs, style)</span>
+            <span class="step-api">→ WebSocket: stream itinerary_day[] to UI</span>
+            <span class="step-api">→ PostgreSQL: INSERT itinerary(trip_id, days[])</span>
+          </div>
+          <div class="step-emotion emo-pos"><span>Excitement</span><div class="emo-bar"><div class="emo-fill" style="width:95%"></div></div></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <div class="step-title">Iterative Refinement Loop</div>
+          <div class="step-desc">User requests changes via natural language: "Day 3 looks too packed", "Add a design museum." Orchestrator routes to AGT-02 with <code>edit_intent</code>. AGT-02 applies diff, increments <code>itinerary.version</code>, re-streams changed days only.</div>
+          <div class="step-tech">
+            <span class="step-api">Orchestrator: parse_edit_intent(user_message)</span>
+            <span class="step-api">AGT-02: apply_diff(itinerary_id, edit_intent)</span>
+            <span class="step-api">→ WebSocket: push updated_days[]</span>
+          </div>
+          <div class="step-emotion emo-neu"><span>In control</span><div class="emo-bar"><div class="emo-fill" style="width:75%"></div></div></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">05</div>
+        <div class="step-body">
+          <div class="step-title">Confirmation & Profile Save</div>
+          <div class="step-desc">User confirms. Orchestrator commits the itinerary, persists updated <code>user_profile</code> with inferred preference deltas. Optionally triggers email export via SendGrid.</div>
+          <div class="step-tech">
+            <span class="step-api">PostgreSQL: UPDATE user_profile SET preference_vector</span>
+            <span class="step-api">PostgreSQL: UPDATE trip SET status='confirmed'</span>
+            <span class="step-api">SendGrid API: send_itinerary_email() [optional]</span>
+          </div>
+          <div class="step-emotion emo-pos"><span>Satisfied</span><div class="emo-bar"><div class="emo-fill" style="width:90%"></div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="edge-box">
+      <div class="edge-title">Edge Cases</div>
+      <div class="edge-row">Conflicting constraints (expensive destination + low budget) → AGT-01 surfaces trade-off dialogue; user selects priority dimension before AGT-02 proceeds.</div>
+      <div class="edge-row">Google Places API unavailable → fallback to Redis-cached POI dataset; UI surfaces transparent degradation notice.</div>
+      <div class="edge-row">Session interrupted mid-profiling → partial profile saved to Redis with 24h TTL; Orchestrator resumes on reconnect using <code>session_id</code>.</div>
+    </div>
+  </div>
+
+  <!-- J2 -->
+  <div class="journey reveal" id="j2">
+    <div class="journey-header">
+      <span class="journey-id j2-id">J2</span>
+      <div class="journey-meta">
+        <h3>Real-Time Language Bridging & Cultural Guidance</h3>
+        <div class="journey-meta-row">
+          <span>Persona: Yoav</span>
+          <span>Duration: Ongoing (real-time)</span>
+          <span>Channel: voice</span>
+          <span>Status: <span class="badge badge-impl" style="font-size:9px;">✓ Implemented</span></span>
+        </div>
+        <div class="journey-meta-row" style="margin-top:6px;">
+          <span class="agent-chip impl">AGT-06 Language & Culture</span>
+          <span class="agent-chip">OpenAI Whisper STT</span>
+          <span class="agent-chip">DeepL Translate</span>
+          <span class="agent-chip">ElevenLabs TTS</span>
+        </div>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">Location-Aware Language Mode Activation</div>
+          <div class="step-desc">GPS coordinates passed to AGT-06. Agent resolves local language from coordinate-to-region mapping. If current language differs from user's native language → Language Mode activated proactively.</div>
+          <div class="step-tech">
+            <span class="step-api">GPS → AGT-06: resolve_language(lat, lon)</span>
+            <span class="step-api">HERE Maps API: reverse_geocode() → country_code</span>
+            <span class="step-api">IF country_code ≠ user.native_locale → activate language_mode</span>
+          </div>
+          <div class="step-emotion emo-neu"><span>Uncertain</span><div class="emo-bar"><div class="emo-fill" style="width:35%"></div></div></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">Speech Capture & Transcription</div>
+          <div class="step-desc">User activates voice button. Audio recorded at 16kHz mono, buffered in 500ms chunks. Streamed to Whisper STT. Transcript returned with confidence score. Low-confidence segments flagged for re-prompt.</div>
+          <div class="step-tech">
+            <span class="step-api">WebSpeech API: MediaRecorder(16kHz) → audio_chunk[]</span>
+            <span class="step-api">OpenAI Whisper API: transcribe(audio, language='auto')</span>
+            <span class="step-api">→ {text, confidence} — if confidence &lt; 0.7 → re-prompt</span>
+          </div>
+          <div class="step-emotion emo-neu"><span>Focused</span><div class="emo-bar"><div class="emo-fill" style="width:60%"></div></div></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">Translation + Cultural Annotation</div>
+          <div class="step-desc">Transcript passed to AGT-06. Agent calls DeepL for primary translation, then augments with Claude for cultural context, etiquette tips, and pronunciation hints. All returned as structured <code>LanguageCard</code> object.</div>
+          <div class="step-tech">
+            <span class="step-api">DeepL API: translate(text, target_lang)</span>
+            <span class="step-api">AGT-06 → Claude API: annotate_cultural_context(text, location)</span>
+            <span class="step-api">→ LanguageCard {translation, pronunciation, etiquette_tip, formality_level}</span>
+          </div>
+          <div class="step-emotion emo-pos"><span>Empowered</span><div class="emo-bar"><div class="emo-fill" style="width:80%"></div></div></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <div class="step-title">Audio Output via TTS</div>
+          <div class="step-desc">Translation text passed to ElevenLabs with target language voice model. Audio streamed back in &lt;1.2s. UI displays <code>LanguageCard</code> concurrently with audio playback. Session transcript logged to PostgreSQL.</div>
+          <div class="step-tech">
+            <span class="step-api">ElevenLabs TTS API: synthesize(text, voice_id, language)</span>
+            <span class="step-api">→ audio/mpeg stream → playback (target: &lt;1.2s latency)</span>
+            <span class="step-api">PostgreSQL: INSERT translation_session(session_id, transcript[])</span>
+          </div>
+          <div class="step-emotion emo-pos"><span>Confident</span><div class="emo-bar"><div class="emo-fill" style="width:90%"></div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="edge-box">
+      <div class="edge-title">Edge Cases</div>
+      <div class="edge-row">Poor network → STT switches to on-device WebSpeech API (English only); translation cached phrases served from Redis offline store.</div>
+      <div class="edge-row">Local dialect / slang not in DeepL → Claude handles with explicit uncertainty flag in <code>LanguageCard.confidence</code>; user informed.</div>
+      <div class="edge-row">Unsupported language → AGT-06 returns nearest supported language with ISO code; graceful degradation, no silent failure.</div>
+    </div>
+  </div>
+
+  <!-- J3 -->
+  <div class="journey reveal" id="j3">
+    <div class="journey-header">
+      <span class="journey-id j3-id">J3</span>
+      <div class="journey-meta">
+        <h3>Complete End-to-End Journey</h3>
+        <div class="journey-meta-row">
+          <span>Persona: Racheli & Amir</span>
+          <span>Duration: Before → During → After trip</span>
+          <span>Status: <span class="badge badge-conc" style="font-size:9px;">○ Conceptual</span></span>
+        </div>
+        <div class="journey-meta-row" style="margin-top:6px;">
+          <span class="agent-chip impl">AGT-01</span><span class="agent-chip impl">AGT-02</span>
+          <span class="agent-chip conc">AGT-03</span><span class="agent-chip conc">AGT-05</span>
+          <span class="agent-chip conc">AGT-07</span><span class="agent-chip conc">AGT-08</span>
+        </div>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">S1</div>
+        <div class="step-body">
+          <div class="step-title">Stage 1 (Before) — Family-Aware Planning</div>
+          <div class="step-desc">AGT-01 profiles family composition including children's ages. AGT-02 filters POIs by <code>family_friendly: true</code>, applies activity duration limits, and schedules mandatory rest buffers. AGT-03 executes bookings with family room requirements and meal-time constraints.</div>
+          <div class="step-tech">
+            <span class="step-api">AGT-01: extract_family_profile(children_ages[], dietary_restrictions[])</span>
+            <span class="step-api">AGT-02: filter_poi(family_friendly=true, max_activity_duration=2h)</span>
+            <span class="step-api">AGT-03 → Amadeus API: book_flight(pax=4, family_seating=true)</span>
+            <span class="step-api">AGT-03 → Booking.com API: reserve_hotel(family_room, dates)</span>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">S2</div>
+        <div class="step-body">
+          <div class="step-title">Stage 2 (During) — Real-Time Schedule Recovery</div>
+          <div class="step-desc">AGT-05 subscribes to FlightRadar and OpenWeather webhooks. On disruption event: computes impact delta across downstream activities, generates 3 alternative schedules ranked by user preference alignment, presents to user for selection, then executes via AGT-03.</div>
+          <div class="step-tech">
+            <span class="step-api">FlightRadar24 Webhook → AGT-05: disruption_event{flight_id, delay_minutes}</span>
+            <span class="step-api">AGT-05: compute_impact_delta(itinerary, delay_minutes)</span>
+            <span class="step-api">AGT-05 → Claude API: generate_alternatives(impacted_days, preferences)</span>
+            <span class="step-api">→ user selects → AGT-03: rebook(new_schedule)</span>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">S3</div>
+        <div class="step-body">
+          <div class="step-title">Stage 3 (After) — Memory Curation & Learning</div>
+          <div class="step-desc">AGT-07 ingests photo metadata and location history to construct a narrative travel journal and curated album. AGT-08 collects explicit ratings and implicit signals (time-on-activity, skips), computes preference delta, and updates <code>user_profile.preference_vector</code> in ChromaDB.</div>
+          <div class="step-tech">
+            <span class="step-api">AGT-07 → Google Photos API: fetch_trip_photos(trip_dates)</span>
+            <span class="step-api">AGT-07 → Claude Vision API: generate_narrative(photos, itinerary)</span>
+            <span class="step-api">AGT-08: compute_preference_delta(ratings[], behavioral_signals[])</span>
+            <span class="step-api">→ ChromaDB: update_vectors(user_id, preference_delta)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- J4 -->
+  <div class="journey reveal" id="j4">
+    <div class="journey-header">
+      <span class="journey-id j4-id">J4</span>
+      <div class="journey-meta">
+        <h3>Returning User with Travel History</h3>
+        <div class="journey-meta-row">
+          <span>Persona: Dana (Year 2)</span>
+          <span>Duration: 3–5 min</span>
+          <span>Channel: text</span>
+          <span>Status: <span class="badge badge-impl" style="font-size:9px;">✓ Implemented</span></span>
+        </div>
+        <div class="journey-meta-row" style="margin-top:6px;">
+          <span class="agent-chip impl">AGT-01</span>
+          <span class="agent-chip impl">AGT-02</span>
+          <span class="agent-chip conc">AGT-11 Anticipation</span>
+        </div>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">Profile Retrieval & Personalized Greeting</div>
+          <div class="step-desc">On session start, Orchestrator queries <code>user_profile</code> from PostgreSQL. Existing profile with <code>trip_count ≥ 1</code> → returning user flow. Last trip summary retrieved, injected into Orchestrator context window for informed greeting.</div>
+          <div class="step-tech">
+            <span class="step-api">PostgreSQL: SELECT * FROM user_profiles WHERE user_id AND trip_count ≥ 1</span>
+            <span class="step-api">PostgreSQL: SELECT summary FROM trips WHERE user_id ORDER BY end_date DESC LIMIT 1</span>
+            <span class="step-api">Orchestrator: inject_context(last_trip_summary, preference_vector)</span>
+          </div>
+          <div class="step-emotion emo-pos"><span>Recognised</span><div class="emo-bar"><div class="emo-fill" style="width:85%"></div></div></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">Proactive Destination Suggestions via AGT-11</div>
+          <div class="step-desc">AGT-11 queries ChromaDB for similar-preference users' high-rated destinations not yet visited by Dana. Cross-referenced with seasonal pricing signals from Amadeus. Returns ranked suggestion list with reasoning.</div>
+          <div class="step-tech">
+            <span class="step-api">AGT-11 → ChromaDB: similarity_search(preference_vector, exclude=visited_destinations[])</span>
+            <span class="step-api">AGT-11 → Amadeus API: get_flight_inspiration(origin, budget_range)</span>
+            <span class="step-api">→ ranked_suggestions[{destination, score, reasoning, est_price}]</span>
+          </div>
+          <div class="step-emotion emo-pos"><span>Intrigued</span><div class="emo-bar"><div class="emo-fill" style="width:80%"></div></div></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">Accelerated Itinerary Generation</div>
+          <div class="step-desc">Because preference_vector is pre-built, AGT-01 skips full profiling — only confirms any changes since last trip (&lt;3 questions). AGT-02 generates an initial itinerary in ~40% of the time compared to a first-time user.</div>
+          <div class="step-tech">
+            <span class="step-api">AGT-01: delta_profile_check(last_profile, current_session) → {changes_detected: bool}</span>
+            <span class="step-api">IF changes_detected → update_preference_vector()</span>
+            <span class="step-api">AGT-02: generate_itinerary(preference_vector, destination) — skips cold-start</span>
+          </div>
+          <div class="step-emotion emo-pos"><span>Delighted</span><div class="emo-bar"><div class="emo-fill" style="width:95%"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- J5 -->
+  <div class="journey reveal" id="j5">
+    <div class="journey-header">
+      <span class="journey-id j5-id">J5</span>
+      <div class="journey-meta">
+        <h3>In-Trip Schedule Recovery — Weather Disruption</h3>
+        <div class="journey-meta-row">
+          <span>Persona: Racheli & Amir (mid-trip)</span>
+          <span>Trigger: external disruption event</span>
+          <span>Status: <span class="badge badge-conc" style="font-size:9px;">○ Conceptual</span></span>
+        </div>
+        <div class="journey-meta-row" style="margin-top:6px;">
+          <span class="agent-chip conc">AGT-05 Schedule Optimizer</span>
+          <span class="agent-chip conc">AGT-03 Booking</span>
+          <span class="agent-chip">OpenWeather</span>
+          <span class="agent-chip">FlightRadar24</span>
+        </div>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">Disruption Detection — Proactive Monitoring</div>
+          <div class="step-desc">AGT-05 runs a background polling loop every 15 minutes against weather and flight APIs for all active trips. Detects that tomorrow's outdoor activities conflict with a high-probability rain forecast (&gt;70%). Disruption event raised internally.</div>
+          <div class="step-tech">
+            <span class="step-api">Cron: every 15min → AGT-05: poll_active_trips()</span>
+            <span class="step-api">OpenWeather API: forecast(lat, lon, days=3) → {precipitation_probability}</span>
+            <span class="step-api">IF precipitation_probability &gt; 0.70 AND activity.outdoor → raise DisruptionEvent</span>
+          </div>
+          <div class="step-emotion emo-neg"><span>Worried</span><div class="emo-bar"><div class="emo-fill" style="width:25%"></div></div></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">Impact Assessment & Alternative Generation</div>
+          <div class="step-desc">AGT-05 scores each impacted activity by disruption severity. Calls Claude to generate 3 ranked alternative itineraries for the affected day, constrained by: open indoor venues, family-friendly, within budget delta ±15%.</div>
+          <div class="step-tech">
+            <span class="step-api">AGT-05: score_disruption_impact(activities[], forecast) → impacted[]</span>
+            <span class="step-api">AGT-05 → Claude API: generate_alternatives(impacted_day, constraints={indoor:true, family:true, budget_delta:0.15})</span>
+            <span class="step-api">Google Places API: search_indoor_alternatives(location, category[])</span>
+            <span class="step-api">→ alternative_itineraries[3] ranked by preference_score</span>
+          </div>
+          <div class="step-emotion emo-neu"><span>Waiting</span><div class="emo-bar"><div class="emo-fill" style="width:50%"></div></div></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">User Notification & Selection</div>
+          <div class="step-desc">Push notification sent via FCM with disruption summary and top alternative. In-app card presents all 3 options with estimated cost delta and duration. User selects. Orchestrator confirms selection and queues re-booking.</div>
+          <div class="step-tech">
+            <span class="step-api">FCM: push_notification(user_id, {type:'disruption', summary, top_alternative})</span>
+            <span class="step-api">UI: render AlternativeCard[3] with cost_delta, duration, preference_score</span>
+            <span class="step-api">→ user.select(alternative_id) → Orchestrator: confirm_rebooking()</span>
+          </div>
+          <div class="step-emotion emo-neu"><span>In control</span><div class="emo-bar"><div class="emo-fill" style="width:70%"></div></div></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <div class="step-title">Automated Re-booking Execution</div>
+          <div class="step-desc">AGT-03 executes cancellations within free-cancellation windows. Books new venues via respective APIs. Updates itinerary record in PostgreSQL. Sends confirmation digest to user. All within 90 seconds of user selection.</div>
+          <div class="step-tech">
+            <span class="step-api">AGT-03 → Booking.com API: cancel_reservation(booking_ref) [if within free_cancel window]</span>
+            <span class="step-api">AGT-03 → OpenTable API: book_restaurant(venue_id, pax=4, datetime)</span>
+            <span class="step-api">PostgreSQL: UPDATE itinerary SET days[affected_day]=new_day WHERE trip_id</span>
+            <span class="step-api">SendGrid: send_rebooking_confirmation(user_email, updated_itinerary)</span>
+          </div>
+          <div class="step-emotion emo-pos"><span>Relieved</span><div class="emo-bar"><div class="emo-fill" style="width:85%"></div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="edge-box">
+      <div class="edge-title">Edge Cases</div>
+      <div class="edge-row">No indoor alternatives available at location → AGT-05 proposes full-day itinerary relocation to a nearby city with indoor attractions; cost delta flagged prominently.</div>
+      <div class="edge-row">Original booking outside free-cancellation window → AGT-03 presents penalty amount, asks explicit user confirmation before proceeding.</div>
+      <div class="edge-row">User ignores notification → system re-alerts 2h before the disrupted activity; if still ignored, falls back to original plan with weather advisory appended.</div>
+    </div>
+  </div>
+
+</div><!-- /section journeys -->
+
+<!-- ═══════════════════════════════════════
+  03 — INFORMATION ARCHITECTURE
+════════════════════════════════════════ -->
+<div class="ia-wrap" id="ia">
+  <div class="ia-inner">
+    <div class="section-label">03 — Information Architecture</div>
+    <h2 class="section-title">System Information Structure</h2>
+    <div class="section-body">
+      <p>The IA defines how data is organized, accessed, and owned across the four stage clusters. A central Orchestrator maintains a unified user context that all agents read from and write back to.</p>
+    </div>
+
+    <div class="ia-diagram">
+      <div class="ia-core reveal">
+        <div class="ia-core-icon">⬡</div>
+        <div>
+          <div class="ia-core-name">Core Orchestrator — Unified User Context</div>
+          <div class="ia-core-desc">user_profile · preference_vector (ChromaDB) · conversation_history · active_trip_state · agent_registry</div>
+        </div>
+      </div>
+      <div class="ia-stages">
+        <div class="ia-stage s1 reveal rd1">
+          <div class="ia-stage-label">Stage 1 — Before</div>
+          <div class="ia-stage-name">Planning & Booking</div>
+          <ul class="ia-items">
+            <li>Preference Profile</li>
+            <li>Itinerary (days[])</li>
+            <li>Booking Confirmations</li>
+            <li>Budget Breakdown</li>
+            <li>Travel Documents</li>
+            <li>Wish-list POIs</li>
+          </ul>
+        </div>
+        <div class="ia-stage s2 reveal rd2">
+          <div class="ia-stage-label">Stage 2 — During</div>
+          <div class="ia-stage-name">Real-Time Guidance</div>
+          <ul class="ia-items">
+            <li>Current GPS Position</li>
+            <li>Active Itinerary State</li>
+            <li>Translation Sessions</li>
+            <li>Disruption Event Queue</li>
+            <li>Nearby Recommendations</li>
+            <li>Agent Activity Log</li>
+          </ul>
+        </div>
+        <div class="ia-stage s3 reveal rd3">
+          <div class="ia-stage-label">Stage 3 — After</div>
+          <div class="ia-stage-name">Memories & Insights</div>
+          <ul class="ia-items">
+            <li>Photo Album (tagged)</li>
+            <li>Narrative Journal</li>
+            <li>Activity Ratings</li>
+            <li>Behavioral Signals</li>
+            <li>Preference Delta</li>
+            <li>Social Export Drafts</li>
+          </ul>
+        </div>
+        <div class="ia-stage s4 reveal rd4">
+          <div class="ia-stage-label">Stage 4 — Long-Term</div>
+          <div class="ia-stage-name">Evolving Companion</div>
+          <ul class="ia-items">
+            <li>Full Travel History</li>
+            <li>Loyalty Programs</li>
+            <li>Preference Model v(n)</li>
+            <li>Future Trip Proposals</li>
+            <li>Wellness Signals</li>
+            <li>Anticipation Score</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+  04 — DATA MODEL
+════════════════════════════════════════ -->
+<div class="section" id="datamodel">
+  <div class="section-label">04 — Data Model</div>
+  <h2 class="section-title">Core Entities</h2>
+  <div class="section-body">
+    <p>Six primary entities power the system. <span class="mono-sm">preference_vector</span> is stored in ChromaDB for similarity search; all relational data lives in PostgreSQL. Redis handles session state and API response caching.</p>
+  </div>
+  <div class="data-grid">
+
+    <div class="data-entity reveal rd1">
+      <div class="de-head"><div class="de-icon">👤</div><div class="de-name">user_profiles</div></div>
+      <div class="de-body">
+        <div class="de-field pk"><span class="de-fname">user_id</span><span class="de-ftype">UUID PK</span></div>
+        <div class="de-field"><span class="de-fname">native_locale</span><span class="de-ftype">varchar</span></div>
+        <div class="de-field"><span class="de-fname">travel_style</span><span class="de-ftype">enum[]</span></div>
+        <div class="de-field"><span class="de-fname">budget_range</span><span class="de-ftype">jsonb</span></div>
+        <div class="de-field"><span class="de-fname">interests</span><span class="de-ftype">text[]</span></div>
+        <div class="de-field"><span class="de-fname">dietary_restrictions</span><span class="de-ftype">text[]</span></div>
+        <div class="de-field"><span class="de-fname">trip_count</span><span class="de-ftype">int</span></div>
+        <div class="de-field"><span class="de-fname">preference_vector</span><span class="de-ftype">float[] ← ChromaDB</span></div>
+      </div>
+    </div>
+
+    <div class="data-entity reveal rd2">
+      <div class="de-head"><div class="de-icon">🗺️</div><div class="de-name">trips</div></div>
+      <div class="de-body">
+        <div class="de-field pk"><span class="de-fname">trip_id</span><span class="de-ftype">UUID PK</span></div>
+        <div class="de-field fk"><span class="de-fname">user_id</span><span class="de-ftype">UUID FK</span></div>
+        <div class="de-field"><span class="de-fname">destination</span><span class="de-ftype">jsonb</span></div>
+        <div class="de-field"><span class="de-fname">start_date / end_date</span><span class="de-ftype">date</span></div>
+        <div class="de-field"><span class="de-fname">status</span><span class="de-ftype">enum</span></div>
+        <div class="de-field"><span class="de-fname">total_budget</span><span class="de-ftype">numeric</span></div>
+        <div class="de-field fk"><span class="de-fname">itinerary_id</span><span class="de-ftype">UUID FK</span></div>
+      </div>
+    </div>
+
+    <div class="data-entity reveal rd3">
+      <div class="de-head"><div class="de-icon">📅</div><div class="de-name">itineraries</div></div>
+      <div class="de-body">
+        <div class="de-field pk"><span class="de-fname">itinerary_id</span><span class="de-ftype">UUID PK</span></div>
+        <div class="de-field"><span class="de-fname">days</span><span class="de-ftype">jsonb[]</span></div>
+        <div class="de-field"><span class="de-fname">version</span><span class="de-ftype">int</span></div>
+        <div class="de-field"><span class="de-fname">generated_by</span><span class="de-ftype">agent_id</span></div>
+        <div class="de-field"><span class="de-fname">personalization_score</span><span class="de-ftype">float</span></div>
+        <div class="de-field"><span class="de-fname">created_at / updated_at</span><span class="de-ftype">timestamp</span></div>
+      </div>
+    </div>
+
+    <div class="data-entity reveal rd4">
+      <div class="de-head"><div class="de-icon">📍</div><div class="de-name">activities</div></div>
+      <div class="de-body">
+        <div class="de-field pk"><span class="de-fname">activity_id</span><span class="de-ftype">UUID PK</span></div>
+        <div class="de-field fk"><span class="de-fname">itinerary_id</span><span class="de-ftype">UUID FK</span></div>
+        <div class="de-field"><span class="de-fname">name / description</span><span class="de-ftype">text</span></div>
+        <div class="de-field"><span class="de-fname">location</span><span class="de-ftype">geography</span></div>
+        <div class="de-field"><span class="de-fname">time_slot</span><span class="de-ftype">tstzrange</span></div>
+        <div class="de-field"><span class="de-fname">category</span><span class="de-ftype">enum</span></div>
+        <div class="de-field"><span class="de-fname">cost / booking_ref</span><span class="de-ftype">numeric / text</span></div>
+      </div>
+    </div>
+
+    <div class="data-entity reveal rd1">
+      <div class="de-head"><div class="de-icon">💬</div><div class="de-name">conversation_sessions</div></div>
+      <div class="de-body">
+        <div class="de-field pk"><span class="de-fname">session_id</span><span class="de-ftype">UUID PK</span></div>
+        <div class="de-field fk"><span class="de-fname">user_id</span><span class="de-ftype">UUID FK</span></div>
+        <div class="de-field"><span class="de-fname">messages</span><span class="de-ftype">jsonb[]</span></div>
+        <div class="de-field"><span class="de-fname">active_agents</span><span class="de-ftype">text[]</span></div>
+        <div class="de-field"><span class="de-fname">intent</span><span class="de-ftype">enum</span></div>
+        <div class="de-field"><span class="de-fname">context_window_tokens</span><span class="de-ftype">int</span></div>
+      </div>
+    </div>
+
+    <div class="data-entity reveal rd2">
+      <div class="de-head"><div class="de-icon">⭐</div><div class="de-name">feedback_events</div></div>
+      <div class="de-body">
+        <div class="de-field pk"><span class="de-fname">feedback_id</span><span class="de-ftype">UUID PK</span></div>
+        <div class="de-field fk"><span class="de-fname">trip_id</span><span class="de-ftype">UUID FK</span></div>
+        <div class="de-field"><span class="de-fname">activity_ratings</span><span class="de-ftype">jsonb map</span></div>
+        <div class="de-field"><span class="de-fname">overall_score</span><span class="de-ftype">float [0–1]</span></div>
+        <div class="de-field"><span class="de-fname">behavioral_signals</span><span class="de-ftype">jsonb</span></div>
+        <div class="de-field"><span class="de-fname">preference_delta</span><span class="de-ftype">float[]</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+  05 — FLOW DIAGRAMS — TECHNICAL
+════════════════════════════════════════ -->
+<div class="section" id="flows" style="padding-bottom:0">
+  <div class="section-label">05 — Flow Diagrams</div>
+  <h2 class="section-title">Technical Sequence Flows</h2>
+  <div class="section-body">
+    <p>Sequence diagrams showing API calls, agent handoffs, data writes, and error branches. Flow 1 (Onboarding + Planning) is fully implemented. Flows 2 and 3 are architectural specifications for future implementation.</p>
+  </div>
+</div>
+
+<div class="section" style="padding-top:32px;" id="flow1">
+
+  <!-- FLOW 1 -->
+  <div class="flow-block">
+    <div class="flow-title">Flow 1 — Onboarding & Itinerary Planning</div>
+    <div class="flow-subtitle">ACTORS: User · Orchestrator · AGT-01 · AGT-02 · Claude API · Google Places API · PostgreSQL · ChromaDB · WebSocket</div>
+    <div class="flow-wrap">
+<svg viewBox="0 0 1060 640" xmlns="http://www.w3.org/2000/svg" font-family="DM Mono, monospace" style="min-width:900px;">
+<defs>
+  <marker id="a" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 Z" fill="rgba(200,164,74,0.7)"/></marker>
+  <marker id="ab" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 Z" fill="rgba(59,130,182,0.7)"/></marker>
+  <marker id="at" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 Z" fill="rgba(42,191,176,0.7)"/></marker>
+  <marker id="ag" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 Z" fill="rgba(45,170,106,0.7)"/></marker>
+  <marker id="ar" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 Z" fill="rgba(224,82,82,0.7)"/></marker>
+</defs>
+
+<!-- LIFELINE X POSITIONS: User=55, Orch=175, AGT01=295, AGT02=415, Claude=535, GPlaces=655, PG=775, Chroma=895, WS=1015 -->
+
+<!-- Actor labels -->
+<g font-size="9" letter-spacing="1" text-anchor="middle" fill="#8A8070">
+  <text x="55"   y="22">USER</text>
+  <text x="175"  y="22">ORCHESTRATOR</text>
+  <text x="295"  y="22">AGT-01</text>
+  <text x="415"  y="22">AGT-02</text>
+  <text x="535"  y="22">CLAUDE API</text>
+  <text x="655"  y="22">GOOGLE PLACES</text>
+  <text x="775"  y="22">POSTGRESQL</text>
+  <text x="895"  y="22">CHROMADB</text>
+  <text x="1015" y="22">WEBSOCKET</text>
+</g>
+
+<!-- Actor boxes -->
+<g fill="#111830" stroke="rgba(200,164,74,0.2)" stroke-width="1">
+  <rect x="20"   y="26" width="70"  height="24" rx="3"/>
+  <rect x="136"  y="26" width="80"  height="24" rx="3"/>
+  <rect x="264"  y="26" width="62"  height="24" rx="3" fill="#0E1928" stroke="rgba(59,130,182,0.3)"/>
+  <rect x="384"  y="26" width="62"  height="24" rx="3" fill="#0E1928" stroke="rgba(42,191,176,0.3)"/>
+  <rect x="504"  y="26" width="62"  height="24" rx="3"/>
+  <rect x="622"  y="26" width="66"  height="24" rx="3"/>
+  <rect x="744"  y="26" width="62"  height="24" rx="3"/>
+  <rect x="864"  y="26" width="62"  height="24" rx="3"/>
+  <rect x="984"  y="26" width="62"  height="24" rx="3" fill="#0E1928" stroke="rgba(42,191,176,0.3)"/>
+</g>
+<g font-size="9" text-anchor="middle" fill="#C8A44A" font-weight="500">
+  <text x="55"   y="43">User</text>
+  <text x="175"  y="43">Orchestrator</text>
+  <text x="295"  y="43" fill="#3B82B6">AGT-01</text>
+  <text x="415"  y="43" fill="#2ABFB0">AGT-02</text>
+  <text x="535"  y="43">Claude API</text>
+  <text x="655"  y="43">G. Places</text>
+  <text x="775"  y="43">PostgreSQL</text>
+  <text x="895"  y="43">ChromaDB</text>
+  <text x="1015" y="43" fill="#2ABFB0">WebSocket</text>
+</g>
+
+<!-- Lifelines -->
+<g stroke-dasharray="4,4" stroke-width="1" opacity=".35">
+  <line x1="55"   y1="50" x2="55"   y2="640" stroke="#C8A44A"/>
+  <line x1="175"  y1="50" x2="175"  y2="640" stroke="#C8A44A"/>
+  <line x1="295"  y1="50" x2="295"  y2="640" stroke="#3B82B6"/>
+  <line x1="415"  y1="50" x2="415"  y2="640" stroke="#2ABFB0"/>
+  <line x1="535"  y1="50" x2="535"  y2="640" stroke="#C8A44A"/>
+  <line x1="655"  y1="50" x2="655"  y2="640" stroke="#C8A44A"/>
+  <line x1="775"  y1="50" x2="775"  y2="640" stroke="#C8A44A"/>
+  <line x1="895"  y1="50" x2="895"  y2="640" stroke="#C8A44A"/>
+  <line x1="1015" y1="50" x2="1015" y2="640" stroke="#2ABFB0"/>
+</g>
+
+<!-- ── ROW 1: App Open ── -->
+<rect x="0" y="62" width="1060" height="16" rx="2" fill="rgba(200,164,74,0.04)"/>
+<text x="6" y="74" font-size="9" fill="rgba(200,164,74,0.5)" letter-spacing="1">APP OPEN</text>
+
+<line x1="55" y1="88" x2="168" y2="88" stroke="rgba(200,164,74,0.6)" stroke-width="1.5" marker-end="url(#a)"/>
+<text x="108" y="84" font-size="9" fill="#8A8070" text-anchor="middle">open_app()</text>
+<line x1="175" y1="96" x2="768" y2="96" stroke="rgba(59,130,182,0.5)" stroke-width="1.5" marker-end="url(#ab)"/>
+<text x="468" y="92" font-size="9" fill="#8A8070" text-anchor="middle">SELECT user_profile WHERE user_id → NULL (new user)</text>
+<line x1="775" y1="104" x2="182" y2="104" stroke="rgba(59,130,182,0.3)" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#ab)"/>
+<text x="468" y="100" font-size="9" fill="rgba(59,130,182,0.5)" text-anchor="middle">→ NULL</text>
+
+<!-- ── ROW 2: Dispatch AGT-01 ── -->
+<rect x="0" y="116" width="1060" height="16" rx="2" fill="rgba(59,130,182,0.04)"/>
+<text x="6" y="128" font-size="9" fill="rgba(59,130,182,0.5)" letter-spacing="1">PROFILING — AGT-01</text>
+
+<line x1="175" y1="142" x2="288" y2="142" stroke="rgba(59,130,182,0.6)" stroke-width="1.5" marker-end="url(#ab)"/>
+<text x="232" y="138" font-size="9" fill="#8A8070" text-anchor="middle">dispatch(AGT-01, {session_id})</text>
+<line x1="295" y1="150" x2="528" y2="150" stroke="rgba(59,130,182,0.5)" stroke-width="1.5" marker-end="url(#ab)"/>
+<text x="408" y="146" font-size="9" fill="#8A8070" text-anchor="middle">extract_preferences(opening_message)</text>
+<line x1="535" y1="158" x2="302" y2="158" stroke="rgba(59,130,182,0.3)" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#ab)"/>
+<text x="408" y="154" font-size="9" fill="rgba(59,130,182,0.5)" text-anchor="middle">→ {pref_dimensions[], confidence:0.3}</text>
+<line x1="295" y1="166" x2="62" y2="166" stroke="rgba(59,130,182,0.5)" stroke-width="1.5" marker-end="url(#ab)"/>
+<text x="175" y="162" font-size="9" fill="#8A8070" text-anchor="middle">ask follow_up_question()</text>
+<line x1="55" y1="174" x2="288" y2="174" stroke="rgba(200,164,74,0.5)" stroke-width="1.5" marker-end="url(#a)"/>
+<text x="175" y="170" font-size="9" fill="#8A8070" text-anchor="middle">user_response(text)</text>
+
+<!-- Loop annotation -->
+<rect x="200" y="178" width="200" height="14" rx="2" fill="rgba(59,130,182,0.06)" stroke="rgba(59,130,182,0.2)" stroke-width="1" stroke-dasharray="3,3"/>
+<text x="300" y="189" font-size="8" fill="rgba(59,130,182,0.5)" text-anchor="middle">LOOP — until confidence ≥ 0.75</text>
+
+<!-- confidence met -->
+<line x1="295" y1="200" x2="888" y2="200" stroke="rgba(59,130,182,0.5)" stroke-width="1.5" marker-end="url(#ab)"/>
+<text x="588" y="196" font-size="9" fill="#8A8070" text-anchor="middle">upsert preference_vector(user_id, vector[])</text>
+
+<!-- ── ROW 3: Handoff to AGT-02 ── -->
+<rect x="0" y="212" width="1060" height="16" rx="2" fill="rgba(42,191,176,0.04)"/>
+<text x="6" y="224" font-size="9" fill="rgba(42,191,176,0.5)" letter-spacing="1">ITINERARY GENERATION — AGT-02</text>
+
+<line x1="175" y1="238" x2="408" y2="238" stroke="rgba(42,191,176,0.6)" stroke-width="1.5" marker-end="url(#at)"/>
+<text x="290" y="234" font-size="9" fill="#8A8070" text-anchor="middle">dispatch(AGT-02, preference_profile)</text>
+
+<line x1="415" y1="246" x2="648" y2="246" stroke="rgba(200,164,74,0.5)" stroke-width="1.5" marker-end="url(#a)"/>
+<text x="530" y="242" font-size="9" fill="#8A8070" text-anchor="middle">nearby_search(destination, interests[], radius)</text>
+<line x1="655" y1="254" x2="422" y2="254" stroke="rgba(200,164,74,0.3)" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#at)"/>
+<text x="530" y="250" font-size="9" fill="rgba(200,164,74,0.5)" text-anchor="middle">→ POI_list[50]</text>
+
+<line x1="415" y1="262" x2="528" y2="262" stroke="rgba(200,164,74,0.5)" stroke-width="1.5" marker-end="url(#a)"/>
+<text x="470" y="258" font-size="9" fill="#8A8070" text-anchor="middle">rank_and_narrate(POIs, style)</text>
+<line x1="535" y1="270" x2="422" y2="270" stroke="rgba(200,164,74,0.3)" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#at)"/>
+<text x="476" y="266" font-size="9" fill="rgba(200,164,74,0.5)" text-anchor="middle">→ ranked_itinerary{days[]}</text>
+
+<line x1="415" y1="278" x2="768" y2="278" stroke="rgba(42,191,176,0.5)" stroke-width="1.5" marker-end="url(#at)"/>
+<text x="588" y="274" font-size="9" fill="#8A8070" text-anchor="middle">INSERT itinerary(trip_id, days[])</text>
+
+<line x1="415" y1="286" x2="1008" y2="286" stroke="rgba(42,191,176,0.5)" stroke-width="1.5" marker-end="url(#at)"/>
+<text x="710" y="282" font-size="9" fill="#8A8070" text-anchor="middle">stream itinerary_day[] → frontend map</text>
+<line x1="1015" y1="294" x2="62" y2="294" stroke="rgba(42,191,176,0.5)" stroke-width="1.5" marker-end="url(#at)"/>
+<text x="530" y="290" font-size="9" fill="rgba(42,191,176,0.6)" text-anchor="middle">→ live map update (real-time)</text>
+
+<!-- ── ROW 4: Refinement ── -->
+<rect x="0" y="306" width="1060" height="16" rx="2" fill="rgba(200,164,74,0.03)"/>
+<text x="6" y="318" font-size="9" fill="rgba(200,164,74,0.4)" letter-spacing="1">REFINEMENT LOOP</text>
+
+<line x1="55" y1="332" x2="168" y2="332" stroke="rgba(200,164,74,0.5)" stroke-width="1.5" marker-end="url(#a)"/>
+<text x="108" y="328" font-size="9" fill="#8A8070" text-anchor="middle">"Day 3 too packed"</text>
+<line x1="175" y1="340" x2="408" y2="340" stroke="rgba(42,191,176,0.5)" stroke-width="1.5" marker-end="url(#at)"/>
+<text x="290" y="336" font-size="9" fill="#8A8070" text-anchor="middle">parse_edit_intent → apply_diff(itinerary_id)</text>
+<line x1="415" y1="348" x2="1008" y2="348" stroke="rgba(42,191,176,0.5)" stroke-width="1.5" marker-end="url(#at)"/>
+<text x="710" y="344" font-size="9" fill="#8A8070" text-anchor="middle">push updated_days[] (changed only)</text>
+<line x1="1015" y1="356" x2="62" y2="356" stroke="rgba(42,191,176,0.5)" stroke-width="1.5" marker-end="url(#at)"/>
+<text x="530" y="352" font-size="9" fill="rgba(42,191,176,0.6)" text-anchor="middle">→ UI re-renders changed days</text>
+
+<rect x="40" y="360" width="160" height="14" rx="2" fill="rgba(200,164,74,0.05)" stroke="rgba(200,164,74,0.15)" stroke-width="1" stroke-dasharray="3,3"/>
+<text x="120" y="371" font-size="8" fill="rgba(200,164,74,0.5)" text-anchor="middle">LOOP — until user confirms</text>
+
+<!-- ── ROW 5: Confirm ── -->
+<rect x="0" y="382" width="1060" height="16" rx="2" fill="rgba(45,170,106,0.04)"/>
+<text x="6" y="394" font-size="9" fill="rgba(45,170,106,0.5)" letter-spacing="1">CONFIRMATION</text>
+
+<line x1="55" y1="408" x2="168" y2="408" stroke="rgba(200,164,74,0.5)" stroke-width="1.5" marker-end="url(#a)"/>
+<text x="108" y="404" font-size="9" fill="#8A8070" text-anchor="middle">confirm()</text>
+<line x1="175" y1="416" x2="768" y2="416" stroke="rgba(45,170,106,0.5)" stroke-width="1.5" marker-end="url(#ag)"/>
+<text x="468" y="412" font-size="9" fill="#8A8070" text-anchor="middle">UPDATE trip SET status='confirmed'</text>
+<line x1="175" y1="424" x2="768" y2="424" stroke="rgba(45,170,106,0.5)" stroke-width="1.5" marker-end="url(#ag)"/>
+<text x="468" y="420" font-size="9" fill="#8A8070" text-anchor="middle">UPDATE user_profile SET preference_vector</text>
+<line x1="775" y1="432" x2="182" y2="432" stroke="rgba(45,170,106,0.3)" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#ag)"/>
+<text x="468" y="428" font-size="9" fill="rgba(45,170,106,0.5)" text-anchor="middle">→ OK</text>
+<line x1="175" y1="440" x2="62" y2="440" stroke="rgba(200,164,74,0.5)" stroke-width="1.5" marker-end="url(#a)"/>
+<text x="108" y="436" font-size="9" fill="#8A8070" text-anchor="middle">show confirmation UI</text>
+
+<!-- ERROR ALT BOX -->
+<rect x="640" y="454" width="380" height="40" rx="3" fill="rgba(224,82,82,0.06)" stroke="rgba(224,82,82,0.25)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="648" y="469" font-size="9" fill="rgba(224,82,82,0.7)" letter-spacing="1">ALT — Google Places unavailable</text>
+<text x="648" y="483" font-size="9" fill="#6B7280">AGT-02 → Redis: get_cached_poi(destination) → fallback_itinerary</text>
+
+<!-- ── END ── -->
+<circle cx="55" cy="518" r="10" fill="rgba(45,170,106,0.2)" stroke="rgba(45,170,106,0.5)" stroke-width="1.5"/>
+<circle cx="55" cy="518" r="5" fill="var(--green)"/>
+<text x="90" y="522" font-size="9" fill="rgba(45,170,106,0.7)">END — Trip confirmed, profile updated</text>
+</svg>
+    </div>
+    <div class="flow-legend">
+      <div class="leg-item"><div class="leg-swatch" style="background:rgba(200,164,74,0.7)"></div>User / Orchestrator call</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:rgba(59,130,182,0.7)"></div>AGT-01 call</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:rgba(42,191,176,0.7)"></div>AGT-02 / WebSocket</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:rgba(45,170,106,0.7)"></div>Confirm / write</div>
+      <div class="leg-swatch" style="background:transparent;border:1px dashed rgba(224,82,82,0.4);width:24px;height:10px;border-radius:2px;"></div><span class="leg-item">ALT / error branch</span>
+    </div>
+  </div>
+
+  <!-- FLOW 2 -->
+  <div class="flow-block reveal">
+    <div class="flow-title">Flow 2 — Language Bridging (AGT-06)</div>
+    <div class="flow-subtitle">ACTORS: User · AGT-06 · OpenAI Whisper · DeepL · Claude API · ElevenLabs · PostgreSQL</div>
+    <div class="flow-wrap">
+<svg viewBox="0 0 880 400" xmlns="http://www.w3.org/2000/svg" font-family="DM Mono, monospace" style="min-width:760px;">
+<defs>
+  <marker id="a2"  markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 Z" fill="rgba(200,164,74,0.7)"/></marker>
+  <marker id="at2" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 Z" fill="rgba(42,191,176,0.7)"/></marker>
+  <marker id="ag2" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 Z" fill="rgba(45,170,106,0.7)"/></marker>
+</defs>
+
+<!-- X: User=55, AGT06=175, Whisper=295, DeepL=415, Claude=535, ElevenLabs=655, PG=775 -->
+<g font-size="9" letter-spacing="1" text-anchor="middle" fill="#8A8070">
+  <text x="55" y="22">USER</text><text x="175" y="22">AGT-06</text>
+  <text x="295" y="22">WHISPER STT</text><text x="415" y="22">DEEPL</text>
+  <text x="535" y="22">CLAUDE API</text><text x="655" y="22">ELEVENLABS</text>
+  <text x="775" y="22">POSTGRESQL</text>
+</g>
+<g fill="#111830" stroke="rgba(200,164,74,0.2)" stroke-width="1">
+  <rect x="20" y="26" width="70" height="24" rx="3"/>
+  <rect x="139" y="26" width="72" height="24" rx="3" fill="#0E1928" stroke="rgba(42,191,176,0.3)"/>
+  <rect x="262" y="26" width="66" height="24" rx="3"/>
+  <rect x="382" y="26" width="66" height="24" rx="3"/>
+  <rect x="502" y="26" width="66" height="24" rx="3"/>
+  <rect x="619" y="26" width="72" height="24" rx="3"/>
+  <rect x="744" y="26" width="62" height="24" rx="3"/>
+</g>
+<g font-size="9" text-anchor="middle">
+  <text x="55" y="43" fill="#C8A44A">User</text>
+  <text x="175" y="43" fill="#2ABFB0">AGT-06</text>
+  <text x="295" y="43" fill="#C8A44A">Whisper</text>
+  <text x="415" y="43" fill="#C8A44A">DeepL</text>
+  <text x="535" y="43" fill="#C8A44A">Claude</text>
+  <text x="655" y="43" fill="#C8A44A">ElevenLabs</text>
+  <text x="775" y="43" fill="#C8A44A">PostgreSQL</text>
+</g>
+<g stroke-dasharray="4,4" stroke-width="1" opacity=".3">
+  <line x1="55"  y1="50" x2="55"  y2="400" stroke="#C8A44A"/>
+  <line x1="175" y1="50" x2="175" y2="400" stroke="#2ABFB0"/>
+  <line x1="295" y1="50" x2="295" y2="400" stroke="#C8A44A"/>
+  <line x1="415" y1="50" x2="415" y2="400" stroke="#C8A44A"/>
+  <line x1="535" y1="50" x2="535" y2="400" stroke="#C8A44A"/>
+  <line x1="655" y1="50" x2="655" y2="400" stroke="#C8A44A"/>
+  <line x1="775" y1="50" x2="775" y2="400" stroke="#C8A44A"/>
+</g>
+
+<rect x="0" y="62" width="880" height="14" rx="2" fill="rgba(42,191,176,0.04)"/>
+<text x="4" y="73" font-size="8" fill="rgba(42,191,176,0.5)" letter-spacing="1">LOCATION DETECTION</text>
+<line x1="55"  y1="86"  x2="168" y2="86"  stroke="rgba(42,191,176,0.6)" stroke-width="1.5" marker-end="url(#at2)"/>
+<text x="108" y="82" font-size="9" fill="#8A8070" text-anchor="middle">gps(lat, lon)</text>
+<line x1="175" y1="94"  x2="168" y2="94"  stroke="rgba(42,191,176,0.3)" stroke-width="1" stroke-dasharray="3,3"/>
+<text x="430" y="90" font-size="9" fill="rgba(42,191,176,0.5)">resolve_language() → ja · activate language_mode</text>
+
+<rect x="0" y="106" width="880" height="14" rx="2" fill="rgba(59,130,182,0.04)"/>
+<text x="4" y="117" font-size="8" fill="rgba(59,130,182,0.5)" letter-spacing="1">SPEECH CAPTURE</text>
+<line x1="55"  y1="130" x2="168" y2="130" stroke="rgba(200,164,74,0.6)" stroke-width="1.5" marker-end="url(#a2)"/>
+<text x="108" y="126" font-size="9" fill="#8A8070" text-anchor="middle">press mic</text>
+<line x1="175" y1="138" x2="288" y2="138" stroke="rgba(200,164,74,0.5)" stroke-width="1.5" marker-end="url(#a2)"/>
+<text x="234" y="134" font-size="9" fill="#8A8070" text-anchor="middle">stream audio(16kHz chunks)</text>
+<line x1="295" y1="146" x2="182" y2="146" stroke="rgba(200,164,74,0.3)" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#at2)"/>
+<text x="234" y="142" font-size="9" fill="rgba(200,164,74,0.5)" text-anchor="middle">{text, confidence:0.92}</text>
+
+<rect x="0" y="158" width="880" height="14" rx="2" fill="rgba(200,164,74,0.03)"/>
+<text x="4" y="169" font-size="8" fill="rgba(200,164,74,0.4)" letter-spacing="1">TRANSLATION + ANNOTATION</text>
+<line x1="175" y1="182" x2="408" y2="182" stroke="rgba(200,164,74,0.5)" stroke-width="1.5" marker-end="url(#a2)"/>
+<text x="290" y="178" font-size="9" fill="#8A8070" text-anchor="middle">translate(text, target_lang='ja')</text>
+<line x1="415" y1="190" x2="182" y2="190" stroke="rgba(200,164,74,0.3)" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#at2)"/>
+<text x="290" y="186" font-size="9" fill="rgba(200,164,74,0.5)" text-anchor="middle">→ translated_text</text>
+<line x1="175" y1="198" x2="528" y2="198" stroke="rgba(200,164,74,0.5)" stroke-width="1.5" marker-end="url(#a2)"/>
+<text x="348" y="194" font-size="9" fill="#8A8070" text-anchor="middle">annotate_cultural_context(text, location)</text>
+<line x1="535" y1="206" x2="182" y2="206" stroke="rgba(200,164,74,0.3)" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#at2)"/>
+<text x="348" y="202" font-size="9" fill="rgba(200,164,74,0.5)" text-anchor="middle">→ LanguageCard{translation, pronunciation, etiquette}</text>
+
+<rect x="0" y="218" width="880" height="14" rx="2" fill="rgba(45,170,106,0.04)"/>
+<text x="4" y="229" font-size="8" fill="rgba(45,170,106,0.5)" letter-spacing="1">TTS OUTPUT</text>
+<line x1="175" y1="242" x2="648" y2="242" stroke="rgba(45,170,106,0.5)" stroke-width="1.5" marker-end="url(#ag2)"/>
+<text x="408" y="238" font-size="9" fill="#8A8070" text-anchor="middle">synthesize(translated_text, voice_ja)</text>
+<line x1="655" y1="250" x2="62"  y2="250" stroke="rgba(45,170,106,0.5)" stroke-width="1.5" marker-end="url(#ag2)"/>
+<text x="408" y="246" font-size="9" fill="rgba(45,170,106,0.6)" text-anchor="middle">→ audio stream (&lt;1.2s) + LanguageCard UI</text>
+<line x1="175" y1="258" x2="768" y2="258" stroke="rgba(45,170,106,0.4)" stroke-width="1.5" marker-end="url(#ag2)"/>
+<text x="468" y="254" font-size="9" fill="#8A8070" text-anchor="middle">INSERT translation_session(transcript[])</text>
+
+<!-- offline fallback -->
+<rect x="100" y="272" width="340" height="32" rx="3" fill="rgba(245,158,11,0.05)" stroke="rgba(245,158,11,0.2)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="108" y="286" font-size="9" fill="rgba(245,158,11,0.7)" letter-spacing="1">ALT — Offline / Low signal</text>
+<text x="108" y="298" font-size="9" fill="#6B7280">WebSpeech API → Redis cached phrases → no ElevenLabs</text>
+</svg>
+    </div>
+  </div>
+
+  <!-- FLOW 3: Disruption -->
+  <div class="flow-block reveal">
+    <div class="flow-title">Flow 3 — In-Trip Disruption Handling (AGT-05)</div>
+    <div class="flow-subtitle">ACTORS: Cron Job · AGT-05 · OpenWeather · Claude API · FCM · AGT-03 · Booking APIs · PostgreSQL</div>
+    <div class="flow-wrap">
+<svg viewBox="0 0 980 380" xmlns="http://www.w3.org/2000/svg" font-family="DM Mono, monospace" style="min-width:860px;">
+<defs>
+  <marker id="a3"  markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 Z" fill="rgba(200,164,74,0.7)"/></marker>
+  <marker id="ao3" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 Z" fill="rgba(245,158,11,0.7)"/></marker>
+  <marker id="ar3" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 Z" fill="rgba(224,82,82,0.7)"/></marker>
+  <marker id="ag3" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 Z" fill="rgba(45,170,106,0.7)"/></marker>
+</defs>
+
+<!-- X: Cron=55, AGT05=175, OW=295, Claude=415, FCM=535, User=640, AGT03=755, Booking=870, PG=895 -->
+<!-- Simplify to 8 actors -->
+<!-- X: Cron=55, AGT05=180, Weather=305, Claude=420, FCM=535, User=640, AGT03=755, PG=875 -->
+<g font-size="9" letter-spacing="1" text-anchor="middle" fill="#8A8070">
+  <text x="55"  y="22">CRON</text><text x="180" y="22">AGT-05</text>
+  <text x="305" y="22">OPENWEATHER</text><text x="420" y="22">CLAUDE API</text>
+  <text x="535" y="22">FCM PUSH</text><text x="640" y="22">USER</text>
+  <text x="755" y="22">AGT-03</text><text x="875" y="22">POSTGRESQL</text>
+</g>
+<g fill="#111830" stroke="rgba(200,164,74,0.2)" stroke-width="1">
+  <rect x="20"  y="26" width="70"  height="24" rx="3"/>
+  <rect x="143" y="26" width="74"  height="24" rx="3" fill="#0E1928" stroke="rgba(245,158,11,0.3)"/>
+  <rect x="268" y="26" width="74"  height="24" rx="3"/>
+  <rect x="382" y="26" width="76"  height="24" rx="3"/>
+  <rect x="500" y="26" width="70"  height="24" rx="3"/>
+  <rect x="605" y="26" width="70"  height="24" rx="3"/>
+  <rect x="720" y="26" width="70"  height="24" rx="3" fill="#0E1928" stroke="rgba(245,158,11,0.3)"/>
+  <rect x="843" y="26" width="64"  height="24" rx="3"/>
+</g>
+<g font-size="9" text-anchor="middle">
+  <text x="55"  y="43" fill="#C8A44A">Cron</text>
+  <text x="180" y="43" fill="#F59E0B">AGT-05</text>
+  <text x="305" y="43" fill="#C8A44A">OpenWeather</text>
+  <text x="420" y="43" fill="#C8A44A">Claude</text>
+  <text x="535" y="43" fill="#C8A44A">FCM</text>
+  <text x="640" y="43" fill="#C8A44A">User</text>
+  <text x="755" y="43" fill="#F59E0B">AGT-03</text>
+  <text x="875" y="43" fill="#C8A44A">PostgreSQL</text>
+</g>
+<g stroke-dasharray="4,4" stroke-width="1" opacity=".3">
+  <line x1="55"  y1="50" x2="55"  y2="380" stroke="#C8A44A"/>
+  <line x1="180" y1="50" x2="180" y2="380" stroke="#F59E0B"/>
+  <line x1="305" y1="50" x2="305" y2="380" stroke="#C8A44A"/>
+  <line x1="420" y1="50" x2="420" y2="380" stroke="#C8A44A"/>
+  <line x1="535" y1="50" x2="535" y2="380" stroke="#C8A44A"/>
+  <line x1="640" y1="50" x2="640" y2="380" stroke="#C8A44A"/>
+  <line x1="755" y1="50" x2="755" y2="380" stroke="#F59E0B"/>
+  <line x1="875" y1="50" x2="875" y2="380" stroke="#C8A44A"/>
+</g>
+
+<rect x="0" y="62" width="980" height="14" rx="2" fill="rgba(245,158,11,0.05)"/>
+<text x="4" y="73" font-size="8" fill="rgba(245,158,11,0.5)" letter-spacing="1">DETECTION — every 15min</text>
+<line x1="55"  y1="86" x2="173" y2="86" stroke="rgba(245,158,11,0.6)" stroke-width="1.5" marker-end="url(#ao3)"/>
+<text x="116" y="82" font-size="9" fill="#8A8070" text-anchor="middle">poll_active_trips()</text>
+<line x1="180" y1="94" x2="298" y2="94" stroke="rgba(200,164,74,0.5)" stroke-width="1.5" marker-end="url(#a3)"/>
+<text x="240" y="90" font-size="9" fill="#8A8070" text-anchor="middle">forecast(lat,lon,days=3)</text>
+<line x1="305" y1="102" x2="187" y2="102" stroke="rgba(200,164,74,0.3)" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#ao3)"/>
+<text x="240" y="98" font-size="9" fill="rgba(200,164,74,0.5)" text-anchor="middle">precipitation_prob: 0.82 → DisruptionEvent</text>
+
+<rect x="0" y="114" width="980" height="14" rx="2" fill="rgba(245,158,11,0.04)"/>
+<text x="4" y="125" font-size="8" fill="rgba(245,158,11,0.4)" letter-spacing="1">ALTERNATIVES</text>
+<line x1="180" y1="138" x2="413" y2="138" stroke="rgba(245,158,11,0.5)" stroke-width="1.5" marker-end="url(#ao3)"/>
+<text x="295" y="134" font-size="9" fill="#8A8070" text-anchor="middle">generate_alternatives(impacted_day, {indoor:true})</text>
+<line x1="420" y1="146" x2="187" y2="146" stroke="rgba(200,164,74,0.3)" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#ao3)"/>
+<text x="295" y="142" font-size="9" fill="rgba(245,158,11,0.5)" text-anchor="middle">→ alternatives[3] ranked by preference_score</text>
+
+<rect x="0" y="158" width="980" height="14" rx="2" fill="rgba(59,130,182,0.04)"/>
+<text x="4" y="169" font-size="8" fill="rgba(59,130,182,0.4)" letter-spacing="1">USER NOTIFICATION</text>
+<line x1="180" y1="182" x2="528" y2="182" stroke="rgba(245,158,11,0.5)" stroke-width="1.5" marker-end="url(#ao3)"/>
+<text x="350" y="178" font-size="9" fill="#8A8070" text-anchor="middle">push_notification(user_id, disruption_summary)</text>
+<line x1="535" y1="190" x2="633" y2="190" stroke="rgba(200,164,74,0.5)" stroke-width="1.5" marker-end="url(#a3)"/>
+<text x="588" y="186" font-size="9" fill="#8A8070" text-anchor="middle">notify()</text>
+<line x1="640" y1="198" x2="187" y2="198" stroke="rgba(200,164,74,0.5)" stroke-width="1.5" marker-end="url(#ao3)"/>
+<text x="408" y="194" font-size="9" fill="rgba(200,164,74,0.6)" text-anchor="middle">select(alternative_id=2)</text>
+
+<rect x="0" y="210" width="980" height="14" rx="2" fill="rgba(45,170,106,0.05)"/>
+<text x="4" y="221" font-size="8" fill="rgba(45,170,106,0.4)" letter-spacing="1">RE-BOOKING EXECUTION</text>
+<line x1="180" y1="234" x2="748" y2="234" stroke="rgba(45,170,106,0.5)" stroke-width="1.5" marker-end="url(#ag3)"/>
+<text x="460" y="230" font-size="9" fill="#8A8070" text-anchor="middle">cancel_reservation(booking_ref) [if free_cancel]</text>
+<line x1="755" y1="242" x2="748" y2="242"/>
+<text x="840" y="238" font-size="9" fill="rgba(200,164,74,0.5)">Booking.com API</text>
+<line x1="180" y1="250" x2="748" y2="250" stroke="rgba(45,170,106,0.5)" stroke-width="1.5" marker-end="url(#ag3)"/>
+<text x="460" y="246" font-size="9" fill="#8A8070" text-anchor="middle">book_alternative(venue_id, pax=4, datetime)</text>
+<line x1="180" y1="258" x2="868" y2="258" stroke="rgba(45,170,106,0.5)" stroke-width="1.5" marker-end="url(#ag3)"/>
+<text x="520" y="254" font-size="9" fill="#8A8070" text-anchor="middle">UPDATE itinerary SET days[affected]=new_day</text>
+<line x1="875" y1="266" x2="647" y2="266" stroke="rgba(45,170,106,0.3)" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#ag3)"/>
+<text x="755" y="262" font-size="9" fill="rgba(45,170,106,0.5)" text-anchor="middle">→ confirmation digest (&lt;90s)</text>
+
+<!-- outside free cancel ALT -->
+<rect x="620" y="280" width="340" height="32" rx="3" fill="rgba(224,82,82,0.06)" stroke="rgba(224,82,82,0.25)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="628" y="294" font-size="9" fill="rgba(224,82,82,0.7)">ALT — Outside free-cancellation window</text>
+<text x="628" y="306" font-size="9" fill="#6B7280">AGT-03 shows penalty_amount → requires explicit user confirm</text>
+</svg>
+    </div>
+  </div>
+
+</div><!-- /flow section -->
+
+<!-- ═══════════════════════════════════════
+  06 — EDGE CASE MATRIX
+════════════════════════════════════════ -->
+<div class="section" id="edgecases">
+  <div class="section-label">06 — Edge Case Matrix</div>
+  <h2 class="section-title">Error States & System Behavior</h2>
+  <div class="section-body">
+    <p>Complete matrix of identified edge cases across all journeys. Priority: <span class="mono-sm" style="color:var(--red);">P0</span> = blocking, must be resolved before demo; <span class="mono-sm" style="color:var(--orange);">P1</span> = degraded experience, acceptable; <span class="mono-sm" style="color:var(--text-muted);">P2</span> = nice-to-have.</p>
+  </div>
+  <table class="ec-table reveal">
+    <thead>
+      <tr>
+        <th>Scenario</th>
+        <th>Journey</th>
+        <th>Agent</th>
+        <th>System Response</th>
+        <th>Pri</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Google Places API unavailable</td>
+        <td class="mono-sm">J1</td>
+        <td><span class="agent-chip" style="font-size:10px;">AGT-02</span></td>
+        <td>Fallback to Redis-cached POI dataset; UI shows "using cached data" notice; itinerary generation proceeds</td>
+        <td><span class="pri p0">P0</span></td>
+      </tr>
+      <tr>
+        <td>Claude API timeout (&gt;30s)</td>
+        <td class="mono-sm">J1, J2</td>
+        <td><span class="agent-chip" style="font-size:10px;">AGT-01/02</span></td>
+        <td>3 retries with exponential backoff; after 3rd failure → basic template itinerary served with apology message</td>
+        <td><span class="pri p0">P0</span></td>
+      </tr>
+      <tr>
+        <td>Whisper STT confidence &lt; 0.7</td>
+        <td class="mono-sm">J2</td>
+        <td><span class="agent-chip" style="font-size:10px;">AGT-06</span></td>
+        <td>AGT-06 requests repeat with voice guidance ("please speak more slowly"); fallback to text input after 2nd failure</td>
+        <td><span class="pri p0">P0</span></td>
+      </tr>
+      <tr>
+        <td>Conflicting profile constraints (low budget + luxury destination)</td>
+        <td class="mono-sm">J1, J4</td>
+        <td><span class="agent-chip" style="font-size:10px;">AGT-01</span></td>
+        <td>Surfaces explicit trade-off dialogue; user selects priority dimension; AGT-02 proceeds with constrained generation</td>
+        <td><span class="pri p1">P1</span></td>
+      </tr>
+      <tr>
+        <td>Network disconnection mid-session</td>
+        <td class="mono-sm">J1, J2</td>
+        <td><span class="agent-chip" style="font-size:10px;">Core</span></td>
+        <td>Partial state saved to Redis (TTL 24h); reconnection detected → Orchestrator resumes from last known checkpoint using <span class="mono-sm">session_id</span></td>
+        <td><span class="pri p1">P1</span></td>
+      </tr>
+      <tr>
+        <td>Booking outside free-cancellation window (J5)</td>
+        <td class="mono-sm">J5</td>
+        <td><span class="agent-chip" style="font-size:10px;">AGT-03</span></td>
+        <td>Penalty amount surfaced explicitly; requires separate user confirmation tap; no auto-cancel</td>
+        <td><span class="pri p1">P1</span></td>
+      </tr>
+      <tr>
+        <td>No indoor alternatives at location (J5)</td>
+        <td class="mono-sm">J5</td>
+        <td><span class="agent-chip" style="font-size:10px;">AGT-05</span></td>
+        <td>AGT-05 proposes full-day city alternative with transport options; cost delta displayed prominently</td>
+        <td><span class="pri p1">P1</span></td>
+      </tr>
+      <tr>
+        <td>Unsupported translation language (J2)</td>
+        <td class="mono-sm">J2</td>
+        <td><span class="agent-chip" style="font-size:10px;">AGT-06</span></td>
+        <td>Returns ISO code of nearest supported language; user informed; no silent failure; LanguageCard rendered in fallback lang</td>
+        <td><span class="pri p1">P1</span></td>
+      </tr>
+      <tr>
+        <td>LLM returns unstructured / unparseable output</td>
+        <td class="mono-sm">J1</td>
+        <td><span class="agent-chip" style="font-size:10px;">AGT-02</span></td>
+        <td>3 retries with corrected prompt; after 3rd → basic template; error logged to monitoring</td>
+        <td><span class="pri p1">P1</span></td>
+      </tr>
+      <tr>
+        <td>ElevenLabs TTS latency &gt; 2s</td>
+        <td class="mono-sm">J2</td>
+        <td><span class="agent-chip" style="font-size:10px;">AGT-06</span></td>
+        <td>LanguageCard text displayed immediately; audio plays when ready; no blocking of UI</td>
+        <td><span class="pri p2">P2</span></td>
+      </tr>
+      <tr>
+        <td>User abandons J5 notification (ignores alert)</td>
+        <td class="mono-sm">J5</td>
+        <td><span class="agent-chip" style="font-size:10px;">AGT-05</span></td>
+        <td>Re-alert 2h before impacted activity; if still ignored → original plan preserved with weather advisory appended in-app</td>
+        <td><span class="pri p2">P2</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- FOOTER -->
+<div class="doc-footer">
+  <p>t.Co — UX Specification v1.0 · HIT — Holon Institute of Technology · 2026</p>
+  <p style="margin-top:6px;">5 Journeys · 6 Data Entities · 3 Technical Flow Diagrams · 11 Edge Cases</p>
+</div>
+
+<script>
+/* Theme 3-state */
+const THEMES=['system','light','dark'];
+const ICONS={system:'💻',light:'☀️',dark:'🌙'};
+const sysDark=window.matchMedia('(prefers-color-scheme: dark)');
+let currentTheme=localStorage.getItem('tco-theme')||'dark';
+function resolveTheme(t){return t==='system'?(sysDark.matches?'dark':'light'):t;}
+function applyTheme(t,save=true){
+  currentTheme=t;
+  document.documentElement.setAttribute('data-theme',resolveTheme(t));
+  document.getElementById('themeIcon').textContent=ICONS[t];
+  document.getElementById('themeBtn').classList.toggle('is-system',t==='system');
+  if(save) localStorage.setItem('tco-theme',t);
+}
+document.getElementById('themeBtn').addEventListener('click',()=>applyTheme(THEMES[(THEMES.indexOf(currentTheme)+1)%3]));
+sysDark.addEventListener('change',()=>{if(currentTheme==='system') applyTheme('system',false);});
+applyTheme(currentTheme,false);
+
+/* Scroll reveal */
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
+},{threshold:.06,rootMargin:'0px 0px -30px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
