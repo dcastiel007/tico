@@ -1,25 +1,31 @@
 <!DOCTYPE html>
-<html lang="he">
+<html lang="he" dir="rtl" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Personal AI Travel Companion — Project Plan</title>
+<title>t.Co — תוכנית פרויקט</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&family=Heebo:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #07091A; --card: #0E1428; --text: #E4DDD0; --muted: #6B7280;
-  --gold: #C8A44A; --border: rgba(200,164,74,0.18);
-  --p1: #3B82B6; --p2: #8B5CF6; --p3: #2ABFB0;
-  --p4: #F59E0B; --p5: #C8A44A; --p6: #2DAA6A; --p7: #E05252;
+:root,[data-theme="dark"]{
+  --bg:#07091A;--card:#0E1428;--text:#E4DDD0;--muted:#6B7280;
+  --gold:#C8A44A;--border:rgba(200,164,74,0.18);
+  --nav-bg:rgba(7,9,26,0.92);
+  --p1:#3B82B6;--p2:#8B5CF6;--p3:#2ABFB0;--p4:#F59E0B;--p5:#C8A44A;--p6:#2DAA6A;--p7:#E05252;
+}
+[data-theme="light"]{
+  --bg:#F6F3EE;--card:#FFFFFF;--text:#1A1410;--muted:#6B5C48;
+  --gold:#8A6820;--border:rgba(138,104,32,0.18);
+  --nav-bg:rgba(246,243,238,0.92);
+  --p1:#2A5F8A;--p2:#6B46C1;--p3:#256E64;--p4:#B45309;--p5:#8A6820;--p6:#276944;--p7:#B91C1C;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
-body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px; }
+body { background:var(--bg); color:var(--text); font-family:'Heebo','DM Sans',sans-serif; font-size:14px; transition:background .35s,color .35s; }
 
 /* Cover — RTL for Hebrew */
 .cover {
   direction: rtl;
-  background: radial-gradient(ellipse at 50% 40%, #0D1535 0%, #07091A 70%);
+  background: radial-gradient(ellipse at 50% 40%, var(--card,#0D1535) 0%, var(--bg,#07091A) 70%);
   padding: 64px 60px 48px;
   border-bottom: 1px solid var(--border);
   display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:24px;
@@ -35,7 +41,7 @@ body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif
 /* Legend — RTL */
 .legend-bar {
   direction:rtl; display:flex; flex-wrap:wrap; padding:0 60px;
-  border-bottom:1px solid var(--border); background:#08091F;
+  border-bottom:1px solid var(--border); background:var(--card);
 }
 .legend-item { display:flex; align-items:center; gap:8px; padding:12px 16px; font-size:12px; color:var(--muted); }
 .legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
@@ -51,7 +57,7 @@ body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif
 .col-chart { /* flex */ }
 
 /* Month header row */
-.month-hdr { background:#08091F; }
+.month-hdr { background:var(--card); }
 .month-hdr td { border-bottom:1px solid var(--border); padding:8px 0; }
 .month-hdr .lbl-cell { padding:8px 14px; font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; text-align:left; }
 .month-hdr .dates-cell { padding:8px 0; font-size:11px; color:var(--muted); letter-spacing:1px; text-align:center; }
@@ -105,30 +111,56 @@ footer { text-align:center; padding:28px; border-top:1px solid var(--border); co
 </head>
 <body>
 
+<style>
+body{padding-top:56px;}
+.shared-nav{position:fixed;top:0;right:0;left:0;z-index:200;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:var(--nav-bg);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;padding:0 40px;}
+.shared-nav-inner{max-width:1400px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+.shared-nav a.nav-home{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:var(--gold);text-decoration:none;}
+.shared-nav .nav-back{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid var(--border);border-radius:20px;transition:all .2s;}
+.shared-nav .nav-back:hover{border-color:var(--gold);color:var(--gold);}
+.shared-nav .nav-actions{display:flex;align-items:center;gap:8px;}
+.shared-nav .theme-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s;position:relative;}
+.shared-nav .theme-btn:hover{border-color:var(--gold);}
+.shared-nav .theme-btn.is-system::after{content:'';position:absolute;bottom:2px;right:2px;width:6px;height:6px;border-radius:50%;background:var(--gold);border:1.5px solid var(--bg);}
+</style>
+<nav class="shared-nav">
+  <div class="shared-nav-inner">
+    <a href="index.html" class="nav-home">t.Co</a>
+    <div class="nav-actions">
+      <a href="index.html" class="nav-back" id="navBack">← חזרה לדף הבית</a>
+      <button class="lang-btn" id="langBtn" style="height:32px;padding:0 12px;border-radius:16px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--muted);font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;letter-spacing:.5px;transition:all .2s;white-space:nowrap;">
+        <span id="langFlag">🇺🇸</span><span id="langLabel">English</span>
+      </button>
+      <button class="theme-btn is-system" id="themeBtn" title="Theme"><span id="themeIcon">💻</span></button>
+    </div>
+  </div>
+</nav>
+
+
 <!-- COVER -->
 <div class="cover">
   <div>
-    <p style="font-size:11px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:12px">תכנית עבודה · 2026</p>
-    <h1>Personal AI<br><span>Travel Companion</span></h1>
-    <p class="sub">Project Roadmap — April through August 2026</p>
+    <p style="font-size:11px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:12px" data-he="תכנית עבודה · 2026" data-en="Work Plan · 2026">תכנית עבודה · 2026</p>
+    <h1><span data-he="סוכן נסיעות" data-en="Personal AI">סוכן נסיעות</span><br><span data-he="אישי חכם" data-en="Travel Companion">אישי חכם</span></h1>
+    <p class="sub" data-he="מפת דרכים לפרויקט — אפריל עד אוגוסט 2026" data-en="Project Roadmap — April through August 2026">מפת דרכים לפרויקט — אפריל עד אוגוסט 2026</p>
   </div>
   <div class="stat-row">
-    <div class="stat-box"><div class="stat-num">29</div><div class="stat-label">Tasks</div></div>
-    <div class="stat-box"><div class="stat-num">7</div><div class="stat-label">Phases</div></div>
-    <div class="stat-box"><div class="stat-num" style="color:#E05252">Aug 4</div><div class="stat-label">Submission</div></div>
-    <div class="stat-box"><div class="stat-num" style="color:#2DAA6A">Aug 6</div><div class="stat-label">Exhibition</div></div>
+    <div class="stat-box"><div class="stat-num">29</div><div class="stat-label" data-he="משימות" data-en="Tasks">משימות</div></div>
+    <div class="stat-box"><div class="stat-num">7</div><div class="stat-label" data-he="פאזות" data-en="Phases">פאזות</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:#E05252">Aug 4</div><div class="stat-label" data-he="הגשה" data-en="Submission">הגשה</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:#2DAA6A">Aug 6</div><div class="stat-label" data-he="תצוגה" data-en="Exhibition">תצוגה</div></div>
   </div>
 </div>
 
 <!-- LEGEND -->
 <div class="legend-bar">
-  <div class="legend-item"><div class="legend-dot" style="background:var(--p1)"></div>Phase 1 — Foundation</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--p2)"></div>Phase 2 — Design</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--p3)"></div>Phase 3 — Development</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--p4)"></div>Phase 4 — Testing</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--p5)"></div>Phase 5 — Production</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--p6)"></div>Phase 6 — Exhibition</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--p7)"></div>Phase 7 — Teardown</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--p1)"></div><span data-he="פאזה 1 — יסודות" data-en="Phase 1 — Foundation">פאזה 1 — יסודות</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--p2)"></div><span data-he="פאזה 2 — עיצוב" data-en="Phase 2 — Design">פאזה 2 — עיצוב</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--p3)"></div><span data-he="פאזה 3 — פיתוח" data-en="Phase 3 — Development">פאזה 3 — פיתוח</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--p4)"></div><span data-he="פאזה 4 — בדיקות" data-en="Phase 4 — Testing">פאזה 4 — בדיקות</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--p5)"></div><span data-he="פאזה 5 — ייצור" data-en="Phase 5 — Production">פאזה 5 — ייצור</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--p6)"></div><span data-he="פאזה 6 — תצוגה" data-en="Phase 6 — Exhibition">פאזה 6 — תצוגה</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--p7)"></div><span data-he="פאזה 7 — פירוק" data-en="Phase 7 — Teardown">פאזה 7 — פירוק</span></div>
 </div>
 
 <!-- GANTT -->
@@ -142,49 +174,49 @@ footer { text-align:center; padding:28px; border-top:1px solid var(--border); co
 <div class="summary">
   <div class="sum-card" style="border-top:2px solid var(--p1)">
     <div class="sum-phase" style="color:var(--p1)">Phase 1</div>
-    <div class="sum-name">Foundation</div>
+    <div class="sum-name" data-he="יסודות" data-en="Foundation">יסודות</div>
     <div class="sum-dates">Apr 1 → Apr 20</div>
     <ul class="sum-tasks"><li>אפיון ו-UX</li><li>זהות מותג</li><li>תסריטי שיחה</li><li>הכנת תוכן</li></ul>
   </div>
   <div class="sum-card" style="border-top:2px solid var(--p2)">
     <div class="sum-phase" style="color:var(--p2)">Phase 2</div>
-    <div class="sum-name">Design</div>
+    <div class="sum-name" data-he="עיצוב" data-en="Design">עיצוב</div>
     <div class="sum-dates">Apr 12 → May 25</div>
     <ul class="sum-tasks"><li>Design system</li><li>Wireframes</li><li>אווטאר</li><li>מרחב תצוגה</li></ul>
   </div>
   <div class="sum-card" style="border-top:2px solid var(--p3)">
     <div class="sum-phase" style="color:var(--p3)">Phase 3</div>
-    <div class="sum-name">Development</div>
+    <div class="sum-name" data-he="פיתוח" data-en="Development">פיתוח</div>
     <div class="sum-dates">May 1 → Jul 5</div>
     <ul class="sum-tasks"><li>Infrastructure</li><li>APIs</li><li>AGT-01/02/06</li><li>Frontend + Voice</li></ul>
   </div>
   <div class="sum-card" style="border-top:2px solid var(--p4)">
     <div class="sum-phase" style="color:var(--p4)">Phase 4</div>
-    <div class="sum-name">Testing</div>
+    <div class="sum-name" data-he="בדיקות" data-en="Testing">בדיקות</div>
     <div class="sum-dates">Jul 1 → Aug 3</div>
     <ul class="sum-tasks"><li>QA</li><li>Pilot (5 users)</li><li>Bug fixes</li><li>Contingency</li></ul>
   </div>
   <div class="sum-card" style="border-top:2px solid var(--p5)">
     <div class="sum-phase" style="color:var(--p5)">Phase 5</div>
-    <div class="sum-name">Production</div>
+    <div class="sum-name" data-he="ייצור" data-en="Production">ייצור</div>
     <div class="sum-dates">Aug 1 → Aug 5</div>
     <ul class="sum-tasks"><li>פוסטרים</li><li>חומרה</li><li>Dry run</li><li>📌 הגשה Aug 4</li></ul>
   </div>
   <div class="sum-card" style="border-top:2px solid var(--p6)">
     <div class="sum-phase" style="color:var(--p6)">Phase 6</div>
-    <div class="sum-name">Exhibition</div>
+    <div class="sum-name" data-he="תצוגה" data-en="Exhibition">תצוגה</div>
     <div class="sum-dates">Aug 5 Setup · Aug 6–19 Live</div>
     <ul class="sum-tasks"><li>הקמה</li><li>ימי תערוכה</li><li>תיעוד</li></ul>
   </div>
   <div class="sum-card" style="border-top:2px solid var(--p7)">
     <div class="sum-phase" style="color:var(--p7)">Phase 7</div>
-    <div class="sum-name">Teardown</div>
+    <div class="sum-name" data-he="פירוק" data-en="Teardown">פירוק</div>
     <div class="sum-dates">Aug 20</div>
     <ul class="sum-tasks"><li>פירוק מיצב</li><li>איסוף ציוד</li><li>סיכום</li></ul>
   </div>
 </div>
 
-<footer>Personal AI Travel Companion &nbsp;·&nbsp; Project Plan v1.2 &nbsp;·&nbsp; Submission: 4 Aug 2026 &nbsp;·&nbsp; Exhibition: 6–19 Aug 2026</footer>
+<footer><span data-he="סוכן נסיעות אישי חכם · תוכנית פרויקט v1.2 · הגשה: 4 אוג׳ 2026 · תצוגה: 6–19 אוג׳ 2026" data-en="Personal AI Travel Companion · Project Plan v1.2 · Submission: 4 Aug 2026 · Exhibition: 6–19 Aug 2026">סוכן נסיעות אישי חכם · תוכנית פרויקט v1.2 · הגשה: 4 אוג׳ 2026 · תצוגה: 6–19 אוג׳ 2026</span></footer>
 
 <script>
 const START      = new Date('2026-04-01');
@@ -208,28 +240,26 @@ const TAG_COLORS = {
   LIVE:'#2DAA6A', TEARDOWN:'#E05252',
 };
 
-const MONTHS = [
-  {name:'אפריל', days:30},{name:'מאי', days:31},
-  {name:'יוני',  days:30},{name:'יולי', days:31},
-  {name:'אוגוסט',days:20},
-];
+const MONTHS_HE = [{name:'אפריל',days:30},{name:'מאי',days:31},{name:'יוני',days:30},{name:'יולי',days:31},{name:'אוגוסט',days:20}];
+const MONTHS_EN = [{name:'April',days:30},{name:'May',days:31},{name:'June',days:30},{name:'July',days:31},{name:'August',days:20}];
+let MONTHS = MONTHS_HE;
 
 const ROWS = [
   // Phase 1
-  {type:'phase', phase:1, label:'Phase 1 — Foundation'},
+  {type:'phase', phase:1, labelHe:'פאזה 1 — יסודות',labelEn:'Phase 1 — Foundation',label:'פאזה 1 — יסודות'},
   {type:'task', phase:1, name:'אפיון מפורט + UX flows',        s:'2026-04-01',e:'2026-04-12',tag:'KEY'},
   {type:'task', phase:1, name:'זהות מותג (שם, לוגו, שפה)',     s:'2026-04-05',e:'2026-04-18',tag:'DESIGN'},
   {type:'task', phase:1, name:'תסריטי שיחה — dialogue flows',  s:'2026-04-08',e:'2026-04-15',tag:'KEY'},
   {type:'task', phase:1, name:'הכנת תוכן — destinations DB',   s:'2026-04-08',e:'2026-04-20',tag:'CONTENT'},
   // Phase 2
-  {type:'phase', phase:2, label:'Phase 2 — Design'},
+  {type:'phase', phase:2, labelHe:'פאזה 2 — עיצוב',labelEn:'Phase 2 — Design',label:'פאזה 2 — עיצוב'},
   {type:'task', phase:2, name:'Style guide + design system',   s:'2026-04-12',e:'2026-04-28',tag:'DESIGN'},
   {type:'task', phase:2, name:'Wireframes + UI prototypes',    s:'2026-04-22',e:'2026-05-10',tag:'DESIGN'},
   {type:'task', phase:2, name:'עיצוב אווטאר / דמות',           s:'2026-04-14',e:'2026-05-01',tag:'DESIGN'},
   {type:'task', phase:2, name:'קונספט מרחב + גלובוס',          s:'2026-05-01',e:'2026-05-20',tag:'KEY'},
   {type:'task', phase:2, name:'קונספט פוסטרים ומיצבים',        s:'2026-05-10',e:'2026-05-25',tag:'DESIGN'},
   // Phase 3
-  {type:'phase', phase:3, label:'Phase 3 — Development'},
+  {type:'phase', phase:3, labelHe:'פאזה 3 — פיתוח',labelEn:'Phase 3 — Development',label:'פאזה 3 — פיתוח'},
   {type:'task', phase:3, name:'Core infrastructure + env',     s:'2026-05-01',e:'2026-05-15',tag:'DEV'},
   {type:'task', phase:3, name:'API integrations (OpenAI, Maps, ElevenLabs)',s:'2026-05-10',e:'2026-05-28',tag:'DEV'},
   {type:'task', phase:3, name:'AGT-01: Preference Profiling',  s:'2026-05-22',e:'2026-06-05',tag:'IMPL'},
@@ -238,25 +268,25 @@ const ROWS = [
   {type:'task', phase:3, name:'Frontend — Exhibition Web App', s:'2026-05-28',e:'2026-07-05',tag:'DEV'},
   {type:'task', phase:3, name:'Voice interface (STT + TTS)',   s:'2026-06-20',e:'2026-07-05',tag:'DEV'},
   // Phase 4
-  {type:'phase', phase:4, label:'Phase 4 — Testing'},
+  {type:'phase', phase:4, labelHe:'פאזה 4 — בדיקות',labelEn:'Phase 4 — Testing',label:'פאזה 4 — בדיקות'},
   {type:'task', phase:4, name:'System integration & QA',       s:'2026-07-01',e:'2026-07-12',tag:'QA'},
   {type:'task', phase:4, name:'Pilot testing (5 users)',        s:'2026-07-10',e:'2026-07-20',tag:'KEY'},
   {type:'task', phase:4, name:'Bug fixes + refinement',         s:'2026-07-15',e:'2026-07-28',tag:'FIX'},
   {type:'task', phase:4, name:'Stress test + contingency',     s:'2026-07-24',e:'2026-07-31',tag:'KEY'},
   {type:'task', phase:4, name:'תיעוד אקדמי (מתמשך)',           s:'2026-06-15',e:'2026-08-03',tag:'DOCS'},
   // Phase 5
-  {type:'phase', phase:5, label:'Phase 5 — Production'},
+  {type:'phase', phase:5, labelHe:'פאזה 5 — ייצור',labelEn:'Phase 5 — Production',label:'פאזה 5 — ייצור'},
   {type:'task', phase:5, name:'ייצור פוסטרים + הדפסה',         s:'2026-08-01',e:'2026-08-05',tag:'PRINT'},
   {type:'task', phase:5, name:'הרכבת חומרה + בדיקות',          s:'2026-08-01',e:'2026-08-04',tag:'HW'},
   {type:'task', phase:5, name:'📌 הגשת הפרויקט',               s:'2026-08-04',e:'2026-08-04',tag:'SUBMIT', milestone:true},
   {type:'task', phase:5, name:'Dry run מלא',                   s:'2026-08-03',e:'2026-08-05',tag:'KEY'},
   // Phase 6
-  {type:'phase', phase:6, label:'Phase 6 — Exhibition'},
+  {type:'phase', phase:6, labelHe:'פאזה 6 — תצוגה',labelEn:'Phase 6 — Exhibition',label:'פאזה 6 — תצוגה'},
   {type:'task', phase:6, name:'הקמת התערוכה',                  s:'2026-08-05',e:'2026-08-06',tag:'SETUP'},
   {type:'task', phase:6, name:'ימי תערוכה 6–19 אוגוסט',       s:'2026-08-06',e:'2026-08-19',tag:'LIVE'},
   {type:'task', phase:6, name:'תיעוד וצילום',                  s:'2026-08-06',e:'2026-08-19',tag:'DOCS'},
   // Phase 7
-  {type:'phase', phase:7, label:'Phase 7 — Teardown'},
+  {type:'phase', phase:7, labelHe:'פאזה 7 — פירוק',labelEn:'Phase 7 — Teardown',label:'פאזה 7 — פירוק'},
   {type:'task', phase:7, name:'פירוק המיצב + איסוף ציוד',     s:'2026-08-20',e:'2026-08-20',tag:'TEARDOWN'},
 ];
 
@@ -267,20 +297,21 @@ function fmtDate(s){
   return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
 }
 
+function buildGantt() {
 const tbl = document.getElementById('gantt');
 
 // ── Month header row ──────────────────────────────────────────────────────
 const hdrTr = tbl.insertRow();
-hdrTr.style.cssText = 'background:#08091F;';
+hdrTr.style.cssText = 'background:var(--card);';
 
 const thLabel = document.createElement('th');
 thLabel.style.cssText = 'width:230px;padding:8px 14px;text-align:right;font-size:11px;color:#6B7280;letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid rgba(200,164,74,0.18);font-weight:400;';
-thLabel.textContent = 'משימה';
+thLabel.textContent = (typeof currentLang!=='undefined' && currentLang==='en') ? 'Task' : 'משימה';
 hdrTr.appendChild(thLabel);
 
 const thDates = document.createElement('th');
 thDates.style.cssText = 'width:130px;padding:8px 6px;text-align:center;font-size:11px;color:#6B7280;letter-spacing:1px;border-bottom:1px solid rgba(200,164,74,0.18);font-weight:400;';
-thDates.textContent = 'תאריכים';
+thDates.textContent = (typeof currentLang!=='undefined' && currentLang==='en') ? 'Dates' : 'תאריכים';
 hdrTr.appendChild(thDates);
 
 const thChart = document.createElement('th');
@@ -310,7 +341,7 @@ ROWS.forEach(row => {
     td.style.cssText = 'padding:9px 14px;border-bottom:1px solid rgba(255,255,255,0.04);border-top:1px solid rgba(255,255,255,0.06);';
     td.innerHTML = `<div style="display:flex;align-items:center;gap:8px;direction:ltr;">
       <div style="width:8px;height:8px;border-radius:50%;background:${ph.color};flex-shrink:0;"></div>
-      <span style="font-size:12px;font-weight:500;color:${ph.color};letter-spacing:.3px">${row.label}</span>
+      <span style="font-size:12px;font-weight:500;color:${ph.color};letter-spacing:.3px">${currentLang==="en" && row.labelEn ? row.labelEn : row.label}</span>
     </div>`;
     return;
   }
@@ -382,6 +413,56 @@ ROWS.forEach(row => {
 
   tdBar.appendChild(inner);
 });
+</script>
+
+<script>
+
+/* ── i18n ── */
+const langConfig = {
+  he: { flag:'🇺🇸', label:'English', next:'en', dir:'rtl', htmlLang:'he', title:'t.Co — תוכנית פרויקט' },
+  en: { flag:'🇮🇱', label:'עברית',   next:'he', dir:'ltr', htmlLang:'en', title:'t.Co — Project Plan' }
+};
+let currentLang = localStorage.getItem('tco-lang') || 'he';
+function rebuildGantt() {
+  MONTHS = currentLang==='he' ? MONTHS_HE : MONTHS_EN;
+  const tbl = document.getElementById('gantt');
+  if(tbl){ tbl.innerHTML=''; buildGantt(); }
+}
+function applyLang(lang, save=true) {
+  const cfg = langConfig[lang];
+  document.documentElement.lang = cfg.htmlLang;
+  document.documentElement.dir  = cfg.dir;
+  document.title = cfg.title;
+  document.querySelectorAll('[data-he][data-en]').forEach(el => { el.textContent = el.dataset[lang]; });
+  const backEl = document.getElementById('navBack');
+  if(backEl) backEl.textContent = lang==='he' ? '← חזרה לדף הבית' : '← Back to Index';
+  document.getElementById('langFlag').textContent  = cfg.flag;
+  document.getElementById('langLabel').textContent = cfg.label;
+  currentLang = lang;
+  if(save) localStorage.setItem('tco-lang', lang);
+  rebuildGantt();
+}
+const lb = document.getElementById('langBtn');
+if(lb) lb.addEventListener('click', () => applyLang(langConfig[currentLang].next));
+
+const THEMES=['system','light','dark'];
+const ICONS={system:'💻',light:'☀️',dark:'🌙'};
+const sysDark=window.matchMedia('(prefers-color-scheme: dark)');
+let currentTheme=localStorage.getItem('tco-theme')||'system';
+function resolveTheme(t){return t==='system'?(sysDark.matches?'dark':'light'):t;}
+function applyTheme(t,save=true){
+  currentTheme=t;
+  document.documentElement.setAttribute('data-theme',resolveTheme(t));
+  const icon=document.getElementById('themeIcon');
+  const btn=document.getElementById('themeBtn');
+  if(icon) icon.textContent=ICONS[t];
+  if(btn) btn.classList.toggle('is-system',t==='system');
+  if(save) localStorage.setItem('tco-theme',t);
+}
+const tb=document.getElementById('themeBtn');
+if(tb) tb.addEventListener('click',()=>applyTheme(THEMES[(THEMES.indexOf(currentTheme)+1)%3]));
+sysDark.addEventListener('change',()=>{if(currentTheme==='system') applyTheme('system',false);});
+applyTheme(currentTheme,false);
 </script>
 </body>
 </html>

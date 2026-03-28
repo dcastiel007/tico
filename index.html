@@ -1,728 +1,711 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he" dir="rtl" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Personal AI Travel Companion — Architecture Document</title>
+<title>t.Co — סוכן נסיעות אישי חכם</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Heebo:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+
 <style>
-  :root {
-    --bg: #07091A;
-    --card: #0E1428;
-    --card2: #111830;
-    --text: #E4DDD0;
-    --text-muted: #8A8070;
-    --gold: #C8A44A;
-    --gold-dim: #7A6028;
-    --blue: #3B82B6;
-    --teal: #2ABFB0;
-    --purple: #8B5CF6;
-    --green: #2DAA6A;
-    --gray: #4A5568;
-    --border: rgba(200,164,74,0.2);
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  html { scroll-behavior: smooth; }
-  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1.7; }
+/* ═══ SHARED DESIGN TOKENS ═══════════════════════════════════ */
+:root, [data-theme="light"] {
+  --bg:         #F6F3EE;
+  --bg2:        #EDEAE3;
+  --surface:    #FFFFFF;
+  --card:       #FFFFFF;
+  --card-hover: #FDFAF5;
+  --text:       #1A1410;
+  --text-muted: #6B5C48;
+  --text-dim:   #A89880;
+  --gold:       #8A6820;
+  --gold-pale:  rgba(138,104,32,0.10);
+  --teal:       #256E64;
+  --border:     rgba(138,104,32,0.15);
+  --border2:    rgba(0,0,0,0.07);
+  --shadow-md:  0 8px 40px rgba(0,0,0,0.10);
+  --divider:    rgba(138,104,32,0.12);
+  --nav-bg:     rgba(246,243,238,0.92);
+}
+[data-theme="dark"] {
+  --bg:         #0C0A08;
+  --bg2:        #141210;
+  --surface:    #1C1814;
+  --card:       #1E1A16;
+  --card-hover: #241F1A;
+  --text:       #EDE8E0;
+  --text-muted: #907A64;
+  --text-dim:   #5A4E42;
+  --gold:       #C8A44A;
+  --gold-pale:  rgba(200,164,74,0.10);
+  --teal:       #3ABFB0;
+  --border:     rgba(200,164,74,0.15);
+  --border2:    rgba(255,255,255,0.06);
+  --shadow-md:  0 8px 40px rgba(0,0,0,0.40);
+  --divider:    rgba(200,164,74,0.10);
+  --nav-bg:     rgba(12,10,8,0.92);
+}
 
-  /* COVER */
-  .cover {
-    min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
-    text-align: center; padding: 80px 40px;
-    background: radial-gradient(ellipse at 50% 30%, #0D1535 0%, #07091A 70%);
-    border-bottom: 1px solid var(--border);
-    position: relative; overflow: hidden;
-  }
-  .cover::before {
-    content: ''; position: absolute; width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(200,164,74,0.05) 0%, transparent 70%);
-    top: 50%; left: 50%; transform: translate(-50%,-50%);
-  }
-  .cover-tag { font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 32px; }
-  .cover h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(42px, 6vw, 80px); font-weight: 300; color: var(--text); line-height: 1.1; margin-bottom: 16px; }
-  .cover h1 span { color: var(--gold); }
-  .cover .subtitle { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 300; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 48px; }
-  .gold-line { width: 80px; height: 1px; background: var(--gold); margin: 0 auto 48px; }
-  .cover-meta { font-size: 12px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; }
+/* ═══ RESET & BASE ════════════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  background:var(--bg); color:var(--text);
+  font-family:'Heebo', sans-serif;
+  line-height:1.7; min-height:100vh;
+  transition:background .35s,color .35s;
+  overflow-x:hidden;
+}
+html[lang="en"] body { font-family:'DM Sans',sans-serif; direction:ltr; }
+html[lang="he"] body { direction:rtl; }
+a { text-decoration:none; color:inherit; }
 
-  /* SECTIONS */
-  .section { max-width: 1100px; margin: 0 auto; padding: 80px 40px; }
-  .section + .section { border-top: 1px solid var(--border); }
-  .section-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
-  .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 4vw, 48px); font-weight: 400; color: var(--text); margin-bottom: 32px; line-height: 1.2; }
-  .section-body { color: var(--text-muted); max-width: 720px; line-height: 1.9; }
-  .section-body p + p { margin-top: 16px; }
+/* ═══ SHARED NAV ══════════════════════════════════════════════ */
+.nav {
+  position:fixed; top:0; right:0; left:0; z-index:100;
+  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  background:var(--nav-bg); border-bottom:1px solid var(--border);
+  height:64px; display:flex; align-items:center; padding:0 40px;
+  transition:background .35s;
+}
+.nav-inner {
+  max-width:1200px; width:100%; margin:0 auto;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.nav-logo {
+  font-family:'Cormorant Garamond',serif;
+  font-size:26px; font-weight:500; color:var(--gold);
+  display:flex; align-items:baseline; gap:10px; text-decoration:none;
+}
+.nav-logo-sub {
+  font-family:'Heebo',sans-serif;
+  font-weight:300; color:var(--text-muted); font-size:13px;
+}
+html[lang="en"] .nav-logo-sub { font-family:'DM Sans',sans-serif; }
+.nav-back {
+  font-family:'Heebo',sans-serif;
+  font-size:13px; color:var(--text-muted); text-decoration:none;
+  display:flex; align-items:center; gap:6px; padding:6px 14px;
+  border:1px solid var(--border); border-radius:20px; background:var(--surface);
+  transition:all .2s;
+}
+html[lang="en"] .nav-back { font-family:'DM Sans',sans-serif; }
+.nav-back:hover { border-color:var(--gold); color:var(--gold); background:var(--gold-pale); }
+.nav-actions { display:flex; align-items:center; gap:8px; }
 
-  /* TOC */
-  .toc { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 32px 40px; margin-bottom: 0; }
-  .toc-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--gold); margin-bottom: 20px; }
-  .toc ol { list-style: none; counter-reset: toc; }
-  .toc ol li { counter-increment: toc; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; align-items: center; gap: 12px; }
-  .toc ol li::before { content: "0" counter(toc); font-size: 11px; color: var(--gold); font-family: 'DM Sans', sans-serif; letter-spacing: 1px; min-width: 28px; }
-  .toc a { color: var(--text-muted); text-decoration: none; font-size: 14px; transition: color 0.2s; }
-  .toc a:hover { color: var(--gold); }
+/* Language button */
+.lang-btn {
+  height:36px; padding:0 14px; border-radius:18px;
+  border:1px solid var(--border); background:var(--surface);
+  cursor:pointer; display:flex; align-items:center; gap:6px;
+  color:var(--text-muted); font-size:12px;
+  font-family:'DM Sans',sans-serif; font-weight:500;
+  letter-spacing:.5px; transition:all .2s; white-space:nowrap;
+}
+.lang-btn:hover { background:var(--gold-pale); color:var(--gold); border-color:var(--gold); }
+.lang-btn-flag { font-size:15px; }
 
-  /* DIAGRAM */
-  .diagram-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 32px; margin: 40px 0; overflow-x: auto; }
-  .diagram-wrap svg { display: block; margin: 0 auto; max-width: 100%; }
+/* Theme button */
+.theme-btn {
+  width:40px; height:40px; border-radius:50%;
+  border:1px solid var(--border); background:var(--surface);
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  font-size:16px; transition:all .2s; position:relative;
+}
+.theme-btn:hover { background:var(--gold-pale); border-color:var(--gold); }
+.theme-btn.is-system::after {
+  content:''; position:absolute; bottom:3px; right:3px;
+  width:7px; height:7px; border-radius:50%;
+  background:var(--gold); border:1.5px solid var(--bg);
+}
 
-  /* STAGE HEADER */
-  .stage-header { display: flex; align-items: center; gap: 16px; margin: 56px 0 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
-  .stage-num { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; flex-shrink: 0; }
-  .stage-num.s1 { background: rgba(59,130,182,0.15); color: var(--blue); border: 1px solid rgba(59,130,182,0.4); }
-  .stage-num.s2 { background: rgba(42,191,176,0.12); color: var(--teal); border: 1px solid rgba(42,191,176,0.4); }
-  .stage-num.s3 { background: rgba(200,164,74,0.12); color: var(--gold); border: 1px solid rgba(200,164,74,0.4); }
-  .stage-num.s4 { background: rgba(139,92,246,0.12); color: var(--purple); border: 1px solid rgba(139,92,246,0.4); }
-  .stage-info h3 { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400; }
-  .stage-info p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+/* ═══ HERO ════════════════════════════════════════════════════ */
+.hero {
+  min-height:100vh; display:flex; flex-direction:column;
+  justify-content:center; padding:120px 40px 80px;
+  position:relative; overflow:hidden;
+}
+html[lang="he"] .hero { align-items:flex-end; }
+html[lang="en"] .hero { align-items:flex-start; }
+.hero::before {
+  content:''; position:absolute; top:-100px; left:-200px;
+  width:700px; height:700px; border-radius:50%;
+  background:radial-gradient(circle, var(--gold-pale) 0%, transparent 70%);
+  pointer-events:none;
+}
+.hero::after {
+  content:''; position:absolute; bottom:-60px; right:-100px;
+  width:500px; height:500px; border-radius:50%;
+  background:radial-gradient(circle, rgba(37,110,100,0.06) 0%, transparent 70%);
+  pointer-events:none;
+}
+.hero-grid {
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(var(--divider) 1px, transparent 1px),
+    linear-gradient(90deg, var(--divider) 1px, transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+  -webkit-mask-image:radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+  pointer-events:none; opacity:.5;
+}
+.hero-content {
+  max-width:1200px; width:100%; margin:0 auto; position:relative; z-index:1;
+}
 
-  /* AGENT CARDS */
-  .agents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; margin-bottom: 16px; }
-  .agent-card { background: var(--card); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 24px; transition: border-color 0.2s; }
-  .agent-card:hover { border-color: var(--border); }
-  .agent-card.s1 { border-top: 2px solid rgba(59,130,182,0.5); }
-  .agent-card.s2 { border-top: 2px solid rgba(42,191,176,0.5); }
-  .agent-card.s3 { border-top: 2px solid rgba(200,164,74,0.5); }
-  .agent-card.s4 { border-top: 2px solid rgba(139,92,246,0.5); }
-  .agent-id { font-size: 10px; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 6px; }
-  .agent-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
-  .agent-role { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px; }
-  .io-block { margin-bottom: 14px; }
-  .io-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
-  .io-list { list-style: none; }
-  .io-list li { font-size: 12px; color: var(--text-muted); padding: 2px 0 2px 14px; position: relative; }
-  .io-list li::before { content: '—'; position: absolute; left: 0; color: var(--gold-dim); }
-  .agent-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.05); flex-wrap: wrap; gap: 8px; }
-  .api-badges { display: flex; flex-wrap: wrap; gap: 4px; }
-  .api-badge { font-size: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 3px; padding: 2px 7px; color: var(--text-muted); }
-  .status-badge { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
-  .status-badge.impl { background: rgba(45,170,106,0.15); color: var(--green); border: 1px solid rgba(45,170,106,0.3); }
-  .status-badge.conc { background: rgba(74,85,104,0.3); color: #6B7280; border: 1px solid rgba(74,85,104,0.4); }
+.hero-kicker {
+  font-family:'DM Sans',sans-serif; font-size:11px;
+  letter-spacing:4px; text-transform:uppercase; color:var(--gold);
+  margin-bottom:24px; display:flex; align-items:center; gap:16px;
+}
+html[lang="he"] .hero-kicker { justify-content:flex-end; }
+html[lang="en"] .hero-kicker { justify-content:flex-start; }
+.hero-kicker::before { content:''; height:1px; width:60px; background:var(--gold); opacity:.4; }
+html[lang="en"] .hero-kicker::before { order:-1; }
 
-  /* ORCHESTRATOR */
-  .orch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 32px; }
-  .orch-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 28px; }
-  .orch-card h4 { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--gold); margin-bottom: 12px; }
-  .orch-card ul { list-style: none; }
-  .orch-card ul li { font-size: 13px; color: var(--text-muted); padding: 5px 0 5px 16px; position: relative; border-bottom: 1px solid rgba(255,255,255,0.04); }
-  .orch-card ul li::before { content: '▸'; position: absolute; left: 0; color: var(--gold); font-size: 10px; top: 7px; }
+.hero-title {
+  font-family:'Heebo', sans-serif;
+  font-size:clamp(44px, 7vw, 90px);
+  font-weight:800; line-height:1.05; color:var(--text);
+  margin-bottom:8px; letter-spacing:-2px;
+}
+html[lang="he"] .hero-title { text-align:right; }
+html[lang="en"] .hero-title {
+  font-family:'Cormorant Garamond',serif; font-weight:300;
+  text-align:left; letter-spacing:-3px; font-size:clamp(48px, 7vw, 96px);
+}
 
-  /* TECH STACK */
-  .stack-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin-top: 32px; }
-  .stack-card { background: var(--card); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 20px; }
-  .stack-category { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
-  .stack-items { display: flex; flex-wrap: wrap; gap: 6px; }
-  .stack-item { font-size: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 4px 10px; border-radius: 4px; color: var(--text-muted); }
+.hero-title-accent {
+  font-weight:300; color:var(--gold);
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic; letter-spacing:-1px; display:block;
+  font-size:0.75em;
+}
+html[lang="en"] .hero-title-accent { font-weight:600; font-style:normal; letter-spacing:-3px; font-size:1em; }
 
-  /* DEMO SCOPE */
-  .demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 32px; }
-  .demo-col { background: var(--card); border-radius: 8px; padding: 28px; }
-  .demo-col.impl { border: 1px solid rgba(45,170,106,0.3); }
-  .demo-col.conc { border: 1px solid rgba(255,255,255,0.06); }
-  .demo-col-title { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
-  .demo-col.impl .demo-col-title { color: var(--green); }
-  .demo-col.conc .demo-col-title { color: var(--text-muted); }
-  .demo-col ul { list-style: none; }
-  .demo-col ul li { font-size: 13px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
-  .demo-col.impl ul li::before { content: '✓'; color: var(--green); font-size: 12px; }
-  .demo-col.conc ul li::before { content: '○'; color: var(--text-muted); font-size: 12px; }
+.hero-subtitle {
+  font-family:'Heebo',sans-serif;
+  font-size:clamp(16px, 2vw, 22px); font-weight:300;
+  color:var(--text-muted); margin-bottom:48px; line-height:1.6;
+  max-width:560px;
+}
+html[lang="he"] .hero-subtitle { text-align:right; margin-right:0; margin-left:auto; }
+html[lang="en"] .hero-subtitle { text-align:left; font-family:'DM Sans',sans-serif; }
 
-  /* EXHIBITION */
-  .exhibition-steps { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 32px; }
-  .ex-step { background: var(--card); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 24px; position: relative; }
-  .ex-step-num { font-family: 'Cormorant Garamond', serif; font-size: 48px; color: rgba(200,164,74,0.15); font-weight: 300; line-height: 1; margin-bottom: 8px; }
-  .ex-step h4 { font-size: 14px; color: var(--text); margin-bottom: 8px; font-weight: 500; }
-  .ex-step p { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+.hero-divider {
+  width:80px; height:1px;
+  background:linear-gradient(to right, transparent, var(--gold));
+  margin-bottom:48px;
+}
+html[lang="he"] .hero-divider { margin-right:0; margin-left:auto; }
+html[lang="en"] .hero-divider {
+  background:linear-gradient(to left, transparent, var(--gold));
+  margin-left:0; margin-right:auto;
+}
 
-  /* FOOTER */
-  .doc-footer { text-align: center; padding: 48px; border-top: 1px solid var(--border); }
-  .doc-footer p { font-size: 12px; color: var(--text-muted); letter-spacing: 1px; }
+.hero-meta { display:flex; gap:32px; margin-bottom:56px; flex-wrap:wrap; }
+html[lang="he"] .hero-meta { justify-content:flex-end; }
+html[lang="en"] .hero-meta { justify-content:flex-start; }
+html[lang="he"] .hero-meta-item { text-align:right; }
+html[lang="en"] .hero-meta-item { text-align:left; }
 
-  @media print {
-    .section { page-break-before: always; }
-    .cover { min-height: auto; padding: 60px 40px; }
-    body { background: white; color: #111; }
-  }
-  @media (max-width: 700px) {
-    .demo-grid, .orch-grid { grid-template-columns: 1fr; }
-    .section { padding: 48px 20px; }
-  }
+.hero-meta-label {
+  font-size:10px; letter-spacing:3px; text-transform:uppercase;
+  color:var(--text-dim); font-family:'DM Sans',sans-serif; margin-bottom:4px;
+}
+.hero-meta-value {
+  font-family:'Cormorant Garamond',serif;
+  font-size:18px; color:var(--text-muted);
+}
+
+/* ═══ STATS STRIP ═════════════════════════════════════════════ */
+.stats-strip {
+  background:var(--surface);
+  border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+  padding:32px 40px;
+}
+.stats-inner {
+  max-width:1200px; margin:0 auto;
+  display:grid; grid-template-columns:repeat(4,1fr);
+}
+.stat-item {
+  text-align:center; padding:16px;
+  border-right:1px solid var(--border); transition:background .2s;
+}
+.stat-item:first-child { border-left:1px solid var(--border); }
+.stat-item:hover { background:var(--gold-pale); }
+.stat-num {
+  font-family:'Cormorant Garamond',serif;
+  font-size:48px; font-weight:300; color:var(--gold); line-height:1; margin-bottom:6px;
+}
+.stat-label {
+  font-size:11px; letter-spacing:2px; text-transform:uppercase;
+  color:var(--text-dim); font-family:'DM Sans',sans-serif;
+}
+
+/* ═══ SECTIONS ════════════════════════════════════════════════ */
+.section { max-width:1200px; margin:0 auto; padding:100px 40px; }
+
+.section-kicker {
+  font-family:'DM Sans',sans-serif; font-size:10px;
+  letter-spacing:4px; text-transform:uppercase; color:var(--gold); margin-bottom:16px;
+}
+.section-title {
+  font-family:'Heebo',sans-serif;
+  font-size:clamp(28px, 4vw, 48px); font-weight:700;
+  line-height:1.15; color:var(--text); margin-bottom:20px; letter-spacing:-1px;
+}
+html[lang="en"] .section-title {
+  font-family:'Cormorant Garamond',serif; font-weight:400; letter-spacing:-2px;
+}
+.section-body { font-size:16px; color:var(--text-muted); line-height:1.9; max-width:620px; }
+html[lang="en"] .section-body { font-family:'DM Sans',sans-serif; }
+
+/* ═══ PAGES GRID ══════════════════════════════════════════════ */
+.pages-section {
+  background:var(--bg2);
+  border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+  padding:100px 40px;
+}
+.pages-inner { max-width:1200px; margin:0 auto; }
+.pages-grid {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:20px; margin-top:56px;
+}
+.page-card {
+  background:var(--card); border:1px solid var(--border2); border-radius:4px;
+  padding:36px 32px; transition:all .3s cubic-bezier(.16,1,.3,1);
+  position:relative; overflow:hidden; display:block; color:inherit;
+}
+.page-card::before {
+  content:''; position:absolute; top:0; right:0; left:0; height:3px;
+  background:var(--gold); transform:scaleX(0); transition:transform .3s cubic-bezier(.16,1,.3,1);
+}
+html[lang="he"] .page-card::before { transform-origin:right; }
+html[lang="en"] .page-card::before { transform-origin:left; }
+.page-card:hover { background:var(--card-hover); border-color:var(--border); transform:translateY(-4px); box-shadow:var(--shadow-md); }
+.page-card:hover::before { transform:scaleX(1); }
+.page-card.placeholder { background:transparent; border-style:dashed; opacity:.45; cursor:default; pointer-events:none; }
+.pages-grid--placeholders .page-card.placeholder { opacity:.35; }
+.page-card-num {
+  font-family:'DM Sans',sans-serif; font-size:10px;
+  letter-spacing:3px; color:var(--text-dim); margin-bottom:20px; text-transform:uppercase;
+}
+.page-card-icon { font-size:28px; margin-bottom:20px; line-height:1; }
+.page-card-title {
+  font-family:'Heebo',sans-serif;
+  font-size:20px; font-weight:700; color:var(--text); margin-bottom:10px; letter-spacing:-.3px;
+}
+html[lang="en"] .page-card-title {
+  font-family:'Cormorant Garamond',serif; font-weight:500; font-size:24px; letter-spacing:-1px;
+}
+.page-card-desc { font-size:14px; color:var(--text-muted); line-height:1.7; margin-bottom:28px; }
+html[lang="en"] .page-card-desc { font-family:'DM Sans',sans-serif; }
+.page-card-arrow { font-size:18px; color:var(--gold); transition:transform .2s; display:inline-block; }
+html[lang="he"] .page-card:hover .page-card-arrow { transform:translateX(-6px); }
+html[lang="en"] .page-card:hover .page-card-arrow { transform:translateX(6px); }
+
+/* ═══ ABOUT ═══════════════════════════════════════════════════ */
+.about-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; }
+.about-tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:28px; }
+.tag {
+  font-family:'DM Sans',sans-serif; font-size:11px; letter-spacing:1px;
+  padding:5px 12px; border-radius:2px; border:1px solid var(--border);
+  color:var(--text-muted); transition:all .2s;
+}
+.tag:hover { background:var(--gold-pale); border-color:var(--gold); color:var(--gold); }
+.about-card { background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:32px; }
+.about-card-title {
+  font-family:'Cormorant Garamond',serif; font-size:16px;
+  color:var(--gold); margin-bottom:20px; letter-spacing:1px; text-transform:uppercase;
+}
+.timeline-item {
+  display:flex; gap:16px; padding:12px 0;
+  border-bottom:1px solid var(--divider); align-items:flex-start;
+}
+html[lang="he"] .timeline-item { flex-direction:row-reverse; }
+.timeline-item:last-child { border-bottom:none; }
+.timeline-dot { width:8px; height:8px; border-radius:50%; background:var(--gold); margin-top:8px; flex-shrink:0; }
+.timeline-text { font-size:14px; color:var(--text-muted); line-height:1.6; }
+html[lang="he"] .timeline-text { text-align:right; }
+html[lang="en"] .timeline-text { text-align:left; font-family:'DM Sans',sans-serif; }
+.timeline-date {
+  font-size:11px; color:var(--text-dim); font-family:'DM Sans',sans-serif;
+  letter-spacing:1px; margin-top:2px; direction:ltr;
+}
+html[lang="he"] .timeline-date { text-align:right; }
+
+/* ═══ FOOTER ══════════════════════════════════════════════════ */
+.footer { background:var(--surface); border-top:1px solid var(--border); padding:48px 40px; }
+.footer-inner {
+  max-width:1200px; margin:0 auto;
+  display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap;
+}
+.footer-logo { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:500; color:var(--gold); }
+.footer-text {
+  font-size:13px; color:var(--text-dim); font-family:'DM Sans',sans-serif;
+  letter-spacing:1px; text-align:center;
+}
+.footer-badge {
+  font-size:11px; color:var(--text-dim); font-family:'DM Sans',sans-serif;
+  letter-spacing:2px; text-transform:uppercase;
+  border:1px solid var(--border); padding:6px 14px; border-radius:2px;
+}
+
+/* ═══ ANIMATIONS ══════════════════════════════════════════════ */
+.reveal { opacity:0; transform:translateY(24px); transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+.reveal.visible { opacity:1; transform:none; }
+.reveal-delay-1 { transition-delay:.1s; }
+.reveal-delay-2 { transition-delay:.2s; }
+.reveal-delay-3 { transition-delay:.3s; }
+.reveal-delay-4 { transition-delay:.4s; }
+.reveal-delay-5 { transition-delay:.5s; }
+
+@keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:none; } }
+.hero-kicker   { animation:fadeUp .8s cubic-bezier(.16,1,.3,1) .2s both; }
+.hero-title    { animation:fadeUp .8s cubic-bezier(.16,1,.3,1) .35s both; }
+.hero-subtitle { animation:fadeUp .8s cubic-bezier(.16,1,.3,1) .5s both; }
+.hero-divider  { animation:fadeUp .8s cubic-bezier(.16,1,.3,1) .6s both; }
+.hero-meta     { animation:fadeUp .8s cubic-bezier(.16,1,.3,1) .7s both; }
+
+/* ═══ RESPONSIVE ══════════════════════════════════════════════ */
+@media (max-width:900px) {
+  .nav { padding:0 20px; }
+  .hero { padding:100px 24px 60px; }
+  .stats-strip { padding:24px 20px; }
+  .stats-inner { grid-template-columns:repeat(2,1fr); }
+  .stat-item:nth-child(2) { border-right:none; }
+  .stat-item:nth-child(3) { border-left:1px solid var(--border); }
+  .pages-section { padding:60px 24px; }
+  .pages-grid { grid-template-columns:1fr; }
+  .section { padding:60px 24px; }
+  .about-grid { grid-template-columns:1fr; gap:40px; }
+  .footer-inner { flex-direction:column; align-items:center; text-align:center; }
+}
+@media (max-width:600px) {
+  .lang-btn span:not(.lang-btn-flag) { display:none; }
+}
 </style>
 </head>
 <body>
 
-<!-- COVER -->
-<div class="cover">
-  <div class="cover-tag">Thesis in Design &amp; Technology &mdash; 2025</div>
-  <h1>Personal AI<br><span>Travel Companion</span></h1>
-  <div class="subtitle">Multi-Agent Architecture for Hyper-Personalized Journeys</div>
-  <div class="gold-line"></div>
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      t.Co
+      <span class="nav-logo-sub" data-he="סוכן נסיעות AI" data-en="AI Travel Agent">סוכן נסיעות AI</span>
+    </a>
+    <div class="nav-actions">
+      <button class="lang-btn" id="langBtn">
+        <span class="lang-btn-flag" id="langFlag">🇺🇸</span>
+        <span id="langLabel">English</span>
+      </button>
+      <button class="theme-btn is-system" id="themeBtn" title="Theme">
+        <span id="themeIcon">💻</span>
+      </button>
+    </div>
+  </div>
+</nav>
 
-  <svg width="560" height="340" viewBox="0 0 560 340" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- Stage boxes -->
-    <rect x="20" y="20" width="190" height="120" rx="8" fill="#0E1428" stroke="rgba(59,130,182,0.4)" stroke-width="1"/>
-    <text x="115" y="52" text-anchor="middle" fill="#3B82B6" font-size="9" font-family="DM Sans" letter-spacing="2">STAGE 1</text>
-    <text x="115" y="68" text-anchor="middle" fill="#E4DDD0" font-size="13" font-family="Cormorant Garamond" font-weight="400">Before Trip</text>
-    <text x="115" y="88" text-anchor="middle" fill="#6B7280" font-size="9" font-family="DM Sans">AGT-01 · Preference Profiling</text>
-    <text x="115" y="102" text-anchor="middle" fill="#6B7280" font-size="9" font-family="DM Sans">AGT-02 · Itinerary Creation</text>
-    <text x="115" y="116" text-anchor="middle" fill="#6B7280" font-size="9" font-family="DM Sans">AGT-03 · Booking &amp; Mgmt</text>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-kicker"
+      data-he="פרויקט גמר · תואר שני בעיצוב לסביבות טכנולוגיות"
+      data-en="Master's Thesis · Design for Technological Environments">
+      פרויקט גמר · תואר שני בעיצוב לסביבות טכנולוגיות
+    </div>
+    <h1 class="hero-title">
+      <span data-he="סוכן נסיעות אישי חכם" data-en="Personal Travel">סוכן נסיעות אישי חכם</span>
+      <span class="hero-title-accent" data-he="מבוסס בינה מלאכותית" data-en="AI Companion">מבוסס בינה מלאכותית</span>
+    </h1>
+    <p class="hero-subtitle"
+      data-he="ארכיטקטורת רב-סוכנים לחוויית נסיעה אישית, חכמה ואדפטיבית — מהתכנון ועד החזרה"
+      data-en="A multi-agent architecture for a personal, intelligent, and adaptive travel experience — from planning to return">
+      ארכיטקטורת רב-סוכנים לחוויית נסיעה אישית, חכמה ואדפטיבית — מהתכנון ועד החזרה
+    </p>
+    <div class="hero-divider"></div>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <div class="hero-meta-label" data-he="מוסד" data-en="Institution">מוסד</div>
+        <div class="hero-meta-value">HIT — Holon Institute of Technology</div>
+      </div>
+      <div class="hero-meta-item">
+        <div class="hero-meta-label" data-he="תוכנית" data-en="Program">תוכנית</div>
+        <div class="hero-meta-value"
+          data-he="עיצוב לסביבות טכנולוגיות"
+          data-en="Design for Technological Environments">עיצוב לסביבות טכנולוגיות</div>
+      </div>
+      <div class="hero-meta-item">
+        <div class="hero-meta-label" data-he="שנה אקדמית" data-en="Academic Year">שנה אקדמית</div>
+        <div class="hero-meta-value">2025–2026</div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <rect x="350" y="20" width="190" height="120" rx="8" fill="#0E1428" stroke="rgba(42,191,176,0.4)" stroke-width="1"/>
-    <text x="445" y="52" text-anchor="middle" fill="#2ABFB0" font-size="9" font-family="DM Sans" letter-spacing="2">STAGE 2</text>
-    <text x="445" y="68" text-anchor="middle" fill="#E4DDD0" font-size="13" font-family="Cormorant Garamond" font-weight="400">During Trip</text>
-    <text x="445" y="88" text-anchor="middle" fill="#6B7280" font-size="9" font-family="DM Sans">AGT-04 · Location Context</text>
-    <text x="445" y="102" text-anchor="middle" fill="#6B7280" font-size="9" font-family="DM Sans">AGT-05 · Schedule Optimizer</text>
-    <text x="445" y="116" text-anchor="middle" fill="#6B7280" font-size="9" font-family="DM Sans">AGT-06 · Language &amp; Culture</text>
-
-    <rect x="20" y="200" width="190" height="120" rx="8" fill="#0E1428" stroke="rgba(139,92,246,0.4)" stroke-width="1"/>
-    <text x="115" y="232" text-anchor="middle" fill="#8B5CF6" font-size="9" font-family="DM Sans" letter-spacing="2">STAGE 4</text>
-    <text x="115" y="248" text-anchor="middle" fill="#E4DDD0" font-size="13" font-family="Cormorant Garamond" font-weight="400">Long-Term Value</text>
-    <text x="115" y="268" text-anchor="middle" fill="#6B7280" font-size="9" font-family="DM Sans">AGT-09 · Loyalty Optimizer</text>
-    <text x="115" y="282" text-anchor="middle" fill="#6B7280" font-size="9" font-family="DM Sans">AGT-10 · Wellness Agent</text>
-    <text x="115" y="296" text-anchor="middle" fill="#6B7280" font-size="9" font-family="DM Sans">AGT-11 · Trip Anticipation</text>
-
-    <rect x="350" y="200" width="190" height="120" rx="8" fill="#0E1428" stroke="rgba(200,164,74,0.4)" stroke-width="1"/>
-    <text x="445" y="232" text-anchor="middle" fill="#C8A44A" font-size="9" font-family="DM Sans" letter-spacing="2">STAGE 3</text>
-    <text x="445" y="248" text-anchor="middle" fill="#E4DDD0" font-size="13" font-family="Cormorant Garamond" font-weight="400">Post Trip</text>
-    <text x="445" y="268" text-anchor="middle" fill="#6B7280" font-size="9" font-family="DM Sans">AGT-07 · Memory Curation</text>
-    <text x="445" y="282" text-anchor="middle" fill="#6B7280" font-size="9" font-family="DM Sans">AGT-08 · Feedback &amp; Learning</text>
-
-    <!-- Center circle -->
-    <circle cx="280" cy="170" r="58" fill="#0E1428" stroke="#C8A44A" stroke-width="1.5"/>
-    <circle cx="280" cy="170" r="50" fill="#0A0F22" stroke="rgba(200,164,74,0.2)" stroke-width="1"/>
-    <text x="280" y="163" text-anchor="middle" fill="#C8A44A" font-size="9" font-family="DM Sans" letter-spacing="2">CORE</text>
-    <text x="280" y="178" text-anchor="middle" fill="#E4DDD0" font-size="12" font-family="Cormorant Garamond">Personal AI</text>
-    <text x="280" y="193" text-anchor="middle" fill="#6B7280" font-size="9" font-family="DM Sans">Orchestrator</text>
-
-    <!-- Connecting lines (center to stages) -->
-    <line x1="210" y1="80" x2="228" y2="140" stroke="rgba(200,164,74,0.25)" stroke-width="1" stroke-dasharray="4,3"/>
-    <line x1="350" y1="80" x2="332" y2="140" stroke="rgba(200,164,74,0.25)" stroke-width="1" stroke-dasharray="4,3"/>
-    <line x1="210" y1="260" x2="228" y2="200" stroke="rgba(200,164,74,0.25)" stroke-width="1" stroke-dasharray="4,3"/>
-    <line x1="350" y1="260" x2="332" y2="200" stroke="rgba(200,164,74,0.25)" stroke-width="1" stroke-dasharray="4,3"/>
-
-    <!-- Flow arrows (clockwise between stages) -->
-    <path d="M 210 60 Q 280 10 350 60" stroke="rgba(100,150,255,0.4)" stroke-width="1.5" fill="none" marker-end="url(#arr1)"/>
-    <path d="M 490 140 Q 540 170 490 200" stroke="rgba(42,191,176,0.4)" stroke-width="1.5" fill="none" marker-end="url(#arr2)"/>
-    <path d="M 350 280 Q 280 330 210 280" stroke="rgba(200,164,74,0.4)" stroke-width="1.5" fill="none" marker-end="url(#arr3)"/>
-    <path d="M 70 200 Q 20 170 70 140" stroke="rgba(139,92,246,0.4)" stroke-width="1.5" fill="none" marker-end="url(#arr4)"/>
-
-    <defs>
-      <marker id="arr1" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="rgba(100,150,255,0.6)"/></marker>
-      <marker id="arr2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="rgba(42,191,176,0.6)"/></marker>
-      <marker id="arr3" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="rgba(200,164,74,0.6)"/></marker>
-      <marker id="arr4" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="rgba(139,92,246,0.6)"/></marker>
-    </defs>
-  </svg>
-
-  <div style="margin-top:48px" class="cover-meta">Architecture Document &nbsp;·&nbsp; Version 1.0 &nbsp;·&nbsp; 2025</div>
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stats-inner">
+    <div class="stat-item"><div class="stat-num">11</div><div class="stat-label" data-he="סוכני AI" data-en="AI Agents">סוכני AI</div></div>
+    <div class="stat-item"><div class="stat-num">4</div><div class="stat-label" data-he="שלבי מסע" data-en="Travel Stages">שלבי מסע</div></div>
+    <div class="stat-item"><div class="stat-num">3</div><div class="stat-label" data-he="סוכנים ממומשים" data-en="Implemented Agents">סוכנים ממומשים</div></div>
+    <div class="stat-item"><div class="stat-num">1</div><div class="stat-label" data-he="מלווה אדפטיבי" data-en="Adaptive Companion">מלווה אדפטיבי</div></div>
+  </div>
 </div>
 
-<!-- TABLE OF CONTENTS -->
+<!-- PAGES -->
+<div class="pages-section">
+  <div class="pages-inner">
+    <div class="reveal">
+      <div class="section-kicker" data-he="תיעוד הפרויקט" data-en="Project Documentation">תיעוד הפרויקט</div>
+      <h2 class="section-title" data-he="מסמכי הפרויקט" data-en="Project Documents">מסמכי הפרויקט</h2>
+      <p class="section-body"
+        data-he="כל המסמכים האקדמיים, הארכיטקטוניים והתכנוניים של הפרויקט — במקום אחד."
+        data-en="All academic, architectural, and planning documents for the project — in one place.">
+        כל המסמכים האקדמיים, הארכיטקטוניים והתכנוניים של הפרויקט — במקום אחד.
+      </p>
+    </div>
+
+    <!-- ── Active pages ── -->
+    <div class="pages-grid">
+
+      <a href="travel-ai-architecture.html" class="page-card reveal reveal-delay-1">
+        <div class="page-card-num" data-he="01 — ארכיטקטורה" data-en="01 — Architecture">01 — ארכיטקטורה</div>
+        <div class="page-card-icon">🧠</div>
+        <h3 class="page-card-title" data-he="מסמך ארכיטקטורה" data-en="Architecture Document">מסמך ארכיטקטורה</h3>
+        <p class="page-card-desc"
+          data-he="תיאור מפורט של ארכיטקטורת רב-הסוכנים — 11 סוכני AI, תפקידיהם, זרימות הנתונים והאינטגרציות."
+          data-en="Detailed description of the multi-agent architecture — 11 AI agents, their roles, data flows, and integrations.">
+          תיאור מפורט של ארכיטקטורת רב-הסוכנים — 11 סוכני AI, תפקידיהם, זרימות הנתונים והאינטגרציות.
+        </p>
+        <span class="page-card-arrow" data-he="←" data-en="→">←</span>
+      </a>
+
+      <a href="project-plan.html" class="page-card reveal reveal-delay-2">
+        <div class="page-card-num" data-he="02 — תכנון" data-en="02 — Planning">02 — תכנון</div>
+        <div class="page-card-icon">📅</div>
+        <h3 class="page-card-title" data-he="תוכנית פרויקט" data-en="Project Plan">תוכנית פרויקט</h3>
+        <p class="page-card-desc"
+          data-he="גאנט מפורט, אבני דרך, פאזות הפיתוח ורשימת המשימות לאורך כל הפרויקט."
+          data-en="Detailed Gantt chart, milestones, development phases, and full task list.">
+          גאנט מפורט, אבני דרך, פאזות הפיתוח ורשימת המשימות לאורך כל הפרויקט.
+        </p>
+        <span class="page-card-arrow" data-he="←" data-en="→">←</span>
+      </a>
+
+      <a href="tco-main.html" class="page-card reveal reveal-delay-3">
+        <div class="page-card-num" data-he="03 — דמו" data-en="03 — Demo">03 — דמו</div>
+        <div class="page-card-icon">🗺️</div>
+        <h3 class="page-card-title" data-he="t.Co — ממשק ראשי" data-en="t.Co — Main Interface">t.Co — ממשק ראשי</h3>
+        <p class="page-card-desc"
+          data-he="ממשק הדמו האינטראקטיבי — הסוכן בפעולה, עם מפה חיה, תכנון מסלול וסוכני AI."
+          data-en="The interactive demo interface — the agent in action, with a live map, route planning, and AI agents.">
+          ממשק הדמו האינטראקטיבי — הסוכן בפעולה, עם מפה חיה, תכנון מסלול וסוכני AI.
+        </p>
+        <span class="page-card-arrow" data-he="←" data-en="→">←</span>
+      </a>
+
+    </div>
+
+    <!-- ── Divider ── -->
+    <div style="margin:48px 0 32px;display:flex;align-items:center;gap:16px;">
+      <div style="flex:1;height:1px;background:var(--divider);"></div>
+      <span style="font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim);"
+        data-he="בפיתוח" data-en="In Development">בפיתוח</span>
+      <div style="flex:1;height:1px;background:var(--divider);"></div>
+    </div>
+
+    <!-- ── Placeholder grid ── -->
+    <div class="pages-grid pages-grid--placeholders">
+
+      <div class="page-card placeholder reveal reveal-delay-1">
+        <div class="page-card-num" data-he="04 — בקרוב" data-en="04 — Coming Soon">04 — בקרוב</div>
+        <div class="page-card-icon">📋</div>
+        <h3 class="page-card-title" data-he="מסמך מחקרי" data-en="Research Document">מסמך מחקרי</h3>
+        <p class="page-card-desc"
+          data-he="הרקע התיאורטי, הספרות האקדמית ושאלות המחקר."
+          data-en="Theoretical background, academic literature, and research questions.">
+          הרקע התיאורטי, הספרות האקדמית ושאלות המחקר.
+        </p>
+      </div>
+
+      <div class="page-card placeholder reveal reveal-delay-2">
+        <div class="page-card-num" data-he="05 — בקרוב" data-en="05 — Coming Soon">05 — בקרוב</div>
+        <div class="page-card-icon">🎨</div>
+        <h3 class="page-card-title" data-he="עיצוב ו-UX" data-en="Design & UX">עיצוב ו-UX</h3>
+        <p class="page-card-desc"
+          data-he="מסמך עיצוב, פרוטוטייפים ו-wireframes."
+          data-en="Design document, prototypes, and wireframes.">
+          מסמך עיצוב, פרוטוטייפים ו-wireframes.
+        </p>
+      </div>
+
+      <div class="page-card placeholder reveal reveal-delay-3">
+        <div class="page-card-num" data-he="06 — בקרוב" data-en="06 — Coming Soon">06 — בקרוב</div>
+        <div class="page-card-icon">📊</div>
+        <h3 class="page-card-title" data-he="הערכה ותוצאות" data-en="Evaluation & Results">הערכה ותוצאות</h3>
+        <p class="page-card-desc"
+          data-he="ממצאי הפרויקט, הרפלקציה וההמלצות."
+          data-en="Findings, reflections, and recommendations.">
+          ממצאי הפרויקט, הרפלקציה וההמלצות.
+        </p>
+      </div>
+
+      <!-- Slot 07 — always empty, reserved -->
+      <div class="page-card placeholder reveal reveal-delay-4" style="opacity:.25;">
+        <div class="page-card-num" data-he="07 — שמור" data-en="07 — Reserved">07 — שמור</div>
+        <div class="page-card-icon" style="opacity:.4">+</div>
+        <h3 class="page-card-title" data-he="עמוד נוסף" data-en="Future Page">עמוד נוסף</h3>
+        <p class="page-card-desc"
+          data-he="מקום שמור לעמוד נוסף שיתווסף בהמשך."
+          data-en="Reserved slot for a future page.">
+          מקום שמור לעמוד נוסף שיתווסף בהמשך.
+        </p>
+      </div>
+
+      <!-- Slot 08 — always empty, reserved -->
+      <div class="page-card placeholder reveal reveal-delay-5" style="opacity:.25;">
+        <div class="page-card-num" data-he="08 — שמור" data-en="08 — Reserved">08 — שמור</div>
+        <div class="page-card-icon" style="opacity:.4">+</div>
+        <h3 class="page-card-title" data-he="עמוד נוסף" data-en="Future Page">עמוד נוסף</h3>
+        <p class="page-card-desc"
+          data-he="מקום שמור לעמוד נוסף שיתווסף בהמשך."
+          data-en="Reserved slot for a future page.">
+          מקום שמור לעמוד נוסף שיתווסף בהמשך.
+        </p>
+      </div>
+
+      <!-- Slot 09 — always empty, reserved -->
+      <div class="page-card placeholder reveal reveal-delay-5" style="opacity:.25;">
+        <div class="page-card-num" data-he="09 — שמור" data-en="09 — Reserved">09 — שמור</div>
+        <div class="page-card-icon" style="opacity:.4">+</div>
+        <h3 class="page-card-title" data-he="עמוד נוסף" data-en="Future Page">עמוד נוסף</h3>
+        <p class="page-card-desc"
+          data-he="מקום שמור לעמוד נוסף שיתווסף בהמשך."
+          data-en="Reserved slot for a future page.">
+          מקום שמור לעמוד נוסף שיתווסף בהמשך.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT -->
 <div class="section">
-  <div class="toc">
-    <div class="toc-title">Table of Contents</div>
-    <ol>
-      <li><a href="#summary">Executive Summary</a></li>
-      <li><a href="#architecture">System Architecture Overview</a></li>
-      <li><a href="#catalog">Agent Catalog</a></li>
-      <li><a href="#orchestrator">Core Orchestrator</a></li>
-      <li><a href="#stack">Technical Stack</a></li>
-      <li><a href="#demo">Demo Scope</a></li>
-      <li><a href="#exhibition">Exhibition Experience Design</a></li>
-    </ol>
-  </div>
-</div>
-
-<!-- 01 EXECUTIVE SUMMARY -->
-<div class="section" id="summary">
-  <div class="section-label">01 — Executive Summary</div>
-  <h2 class="section-title">A Lifelong Companion<br>for Every Journey</h2>
-  <div class="section-body">
-    <p>The Personal AI Travel Companion is a multi-agent system designed to deliver hyper-personalized travel assistance at every stage of the journey — from initial inspiration to long-term travel memory. Unlike conventional travel apps that treat each booking as an isolated transaction, this system builds a continuous, evolving model of the traveler's preferences, behaviors, and aspirations.</p>
-    <p>At its core, an orchestrating AI coordinates eleven specialized agents across four distinct stages: pre-trip planning and booking, real-time in-trip guidance, post-trip curation and reflection, and long-term companion intelligence. Each stage feeds the next, creating a feedback loop that makes the system smarter and more attuned with every journey.</p>
-    <p>This architecture document provides a complete specification of the system's agent topology, data flows, technical dependencies, and exhibition implementation scope. It is intended to serve as both an academic reference and a technical blueprint for the working demonstration.</p>
-  </div>
-</div>
-
-<!-- 02 ARCHITECTURE -->
-<div class="section" id="architecture">
-  <div class="section-label">02 — System Architecture</div>
-  <h2 class="section-title">The Four-Stage<br>Agent Ecosystem</h2>
-  <div class="section-body"><p>The system is organized around a central orchestrating intelligence — the Core Personal AI — which coordinates four specialized stage clusters. Data and context flow continuously between stages, and a feedback loop from Stage 4 back to Stage 1 ensures the system evolves over time.</p></div>
-  <div class="diagram-wrap">
-    <svg width="900" height="580" viewBox="0 0 900 580" xmlns="http://www.w3.org/2000/svg">
-      <!-- Stage 1 -->
-      <rect x="30" y="30" width="280" height="200" rx="10" fill="#0A1020" stroke="rgba(59,130,182,0.5)" stroke-width="1.5"/>
-      <rect x="30" y="30" width="280" height="4" rx="2" fill="#3B82B6"/>
-      <text x="170" y="62" text-anchor="middle" font-family="DM Sans" font-size="10" fill="#3B82B6" letter-spacing="3">STAGE 1</text>
-      <text x="170" y="82" text-anchor="middle" font-family="Cormorant Garamond" font-size="20" fill="#E4DDD0" font-weight="400">Before Trip</text>
-      <line x1="60" y1="98" x2="280" y2="98" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
-      <text x="60" y="118" font-family="DM Sans" font-size="11" fill="#8A8070">AGT-01 &nbsp; Preference Profiling</text>
-      <text x="60" y="140" font-family="DM Sans" font-size="11" fill="#8A8070">AGT-02 &nbsp; Itinerary Creation</text>
-      <text x="60" y="162" font-family="DM Sans" font-size="11" fill="#8A8070">AGT-03 &nbsp; Booking &amp; Management</text>
-      <rect x="232" y="105" width="60" height="16" rx="3" fill="rgba(45,170,106,0.1)" stroke="rgba(45,170,106,0.3)" stroke-width="1"/>
-      <text x="262" y="117" text-anchor="middle" font-family="DM Sans" font-size="8" fill="#2DAA6A">LIVE ×2</text>
-
-      <!-- Stage 2 -->
-      <rect x="590" y="30" width="280" height="200" rx="10" fill="#0A1020" stroke="rgba(42,191,176,0.5)" stroke-width="1.5"/>
-      <rect x="590" y="30" width="280" height="4" rx="2" fill="#2ABFB0"/>
-      <text x="730" y="62" text-anchor="middle" font-family="DM Sans" font-size="10" fill="#2ABFB0" letter-spacing="3">STAGE 2</text>
-      <text x="730" y="82" text-anchor="middle" font-family="Cormorant Garamond" font-size="20" fill="#E4DDD0" font-weight="400">During Trip</text>
-      <line x1="620" y1="98" x2="840" y2="98" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
-      <text x="620" y="118" font-family="DM Sans" font-size="11" fill="#8A8070">AGT-04 &nbsp; Location Context</text>
-      <text x="620" y="140" font-family="DM Sans" font-size="11" fill="#8A8070">AGT-05 &nbsp; Schedule Optimizer</text>
-      <text x="620" y="162" font-family="DM Sans" font-size="11" fill="#8A8070">AGT-06 &nbsp; Language &amp; Culture</text>
-      <rect x="792" y="105" width="60" height="16" rx="3" fill="rgba(45,170,106,0.1)" stroke="rgba(45,170,106,0.3)" stroke-width="1"/>
-      <text x="822" y="117" text-anchor="middle" font-family="DM Sans" font-size="8" fill="#2DAA6A">LIVE ×1</text>
-
-      <!-- Stage 3 -->
-      <rect x="590" y="350" width="280" height="200" rx="10" fill="#0A1020" stroke="rgba(200,164,74,0.5)" stroke-width="1.5"/>
-      <rect x="590" y="350" width="280" height="4" rx="2" fill="#C8A44A"/>
-      <text x="730" y="382" text-anchor="middle" font-family="DM Sans" font-size="10" fill="#C8A44A" letter-spacing="3">STAGE 3</text>
-      <text x="730" y="402" text-anchor="middle" font-family="Cormorant Garamond" font-size="20" fill="#E4DDD0" font-weight="400">Post Trip</text>
-      <line x1="620" y1="418" x2="840" y2="418" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
-      <text x="620" y="440" font-family="DM Sans" font-size="11" fill="#8A8070">AGT-07 &nbsp; Memory Curation</text>
-      <text x="620" y="462" font-family="DM Sans" font-size="11" fill="#8A8070">AGT-08 &nbsp; Feedback &amp; Learning</text>
-
-      <!-- Stage 4 -->
-      <rect x="30" y="350" width="280" height="200" rx="10" fill="#0A1020" stroke="rgba(139,92,246,0.5)" stroke-width="1.5"/>
-      <rect x="30" y="350" width="280" height="4" rx="2" fill="#8B5CF6"/>
-      <text x="170" y="382" text-anchor="middle" font-family="DM Sans" font-size="10" fill="#8B5CF6" letter-spacing="3">STAGE 4</text>
-      <text x="170" y="402" text-anchor="middle" font-family="Cormorant Garamond" font-size="20" fill="#E4DDD0" font-weight="400">Long-Term Value</text>
-      <line x1="60" y1="418" x2="280" y2="418" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
-      <text x="60" y="440" font-family="DM Sans" font-size="11" fill="#8A8070">AGT-09 &nbsp; Loyalty Optimization</text>
-      <text x="60" y="462" font-family="DM Sans" font-size="11" fill="#8A8070">AGT-10 &nbsp; Wellness Monitoring</text>
-      <text x="60" y="484" font-family="DM Sans" font-size="11" fill="#8A8070">AGT-11 &nbsp; Trip Anticipation</text>
-
-      <!-- Center hub -->
-      <circle cx="450" cy="290" r="80" fill="#0B1225" stroke="#C8A44A" stroke-width="2"/>
-      <circle cx="450" cy="290" r="70" fill="#07091A" stroke="rgba(200,164,74,0.15)" stroke-width="1"/>
-      <text x="450" y="274" text-anchor="middle" font-family="DM Sans" font-size="9" fill="#C8A44A" letter-spacing="3">CORE</text>
-      <text x="450" y="293" text-anchor="middle" font-family="Cormorant Garamond" font-size="18" fill="#E4DDD0">Personal AI</text>
-      <text x="450" y="312" text-anchor="middle" font-family="DM Sans" font-size="10" fill="#6B7280">Orchestrator</text>
-
-      <!-- Lines center to stages -->
-      <line x1="310" y1="130" x2="376" y2="248" stroke="rgba(200,164,74,0.2)" stroke-width="1" stroke-dasharray="5,4"/>
-      <line x1="590" y1="130" x2="524" y2="248" stroke="rgba(200,164,74,0.2)" stroke-width="1" stroke-dasharray="5,4"/>
-      <line x1="310" y1="450" x2="376" y2="332" stroke="rgba(200,164,74,0.2)" stroke-width="1" stroke-dasharray="5,4"/>
-      <line x1="590" y1="450" x2="524" y2="332" stroke="rgba(200,164,74,0.2)" stroke-width="1" stroke-dasharray="5,4"/>
-
-      <!-- Flow arrows -->
-      <path d="M 310 80 Q 450 -10 590 80" stroke="rgba(100,160,255,0.5)" stroke-width="1.5" fill="none" marker-end="url(#a1)"/>
-      <text x="450" y="26" text-anchor="middle" font-family="DM Sans" font-size="9" fill="rgba(100,160,255,0.6)">plan → execute</text>
-
-      <path d="M 840 230 Q 900 290 840 350" stroke="rgba(42,191,176,0.5)" stroke-width="1.5" fill="none" marker-end="url(#a2)"/>
-      <text x="886" y="296" font-family="DM Sans" font-size="9" fill="rgba(42,191,176,0.6)">live →</text>
-
-      <path d="M 590 500 Q 450 580 310 500" stroke="rgba(200,164,74,0.5)" stroke-width="1.5" fill="none" marker-end="url(#a3)"/>
-      <text x="450" y="572" text-anchor="middle" font-family="DM Sans" font-size="9" fill="rgba(200,164,74,0.6)">insights → profile</text>
-
-      <path d="M 60 350 Q 0 290 60 230" stroke="rgba(139,92,246,0.5)" stroke-width="1.5" fill="none" marker-end="url(#a4)"/>
-      <text x="4" y="296" font-family="DM Sans" font-size="9" fill="rgba(139,92,246,0.6)">→ grow</text>
-
-      <defs>
-        <marker id="a1" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="rgba(100,160,255,0.7)"/></marker>
-        <marker id="a2" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="rgba(42,191,176,0.7)"/></marker>
-        <marker id="a3" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="rgba(200,164,74,0.7)"/></marker>
-        <marker id="a4" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="rgba(139,92,246,0.7)"/></marker>
-      </defs>
-    </svg>
-  </div>
-</div>
-
-<!-- 03 AGENT CATALOG -->
-<div class="section" id="catalog">
-  <div class="section-label">03 — Agent Catalog</div>
-  <h2 class="section-title">Eleven Specialized Agents<br>Across Four Stages</h2>
-
-  <!-- STAGE 1 -->
-  <div class="stage-header">
-    <div class="stage-num s1">S1</div>
-    <div class="stage-info">
-      <h3 style="color:#3B82B6">Before Trip — Planning &amp; Booking</h3>
-      <p>Transforms raw travel intent into a confirmed, personalized itinerary with all reservations secured.</p>
-    </div>
-  </div>
-  <div class="agents-grid">
-    <div class="agent-card s1">
-      <div class="agent-id">AGT-01</div>
-      <div class="agent-name">Preference Profiling Agent</div>
-      <div class="agent-role">Builds a rich, structured model of the traveler's style, budget thresholds, interests, and constraints through natural conversation and behavioral inference.</div>
-      <div class="io-block">
-        <div class="io-label">Inputs</div>
-        <ul class="io-list"><li>User conversations &amp; stated preferences</li><li>Past trip history</li><li>Explicit budget &amp; date constraints</li></ul>
-      </div>
-      <div class="io-block">
-        <div class="io-label">Outputs</div>
-        <ul class="io-list"><li>Structured user profile (JSON)</li><li>Travel style taxonomy</li><li>Interest &amp; constraint vectors</li></ul>
-      </div>
-      <div class="agent-footer">
-        <div class="api-badges"><span class="api-badge">GPT-4o</span><span class="api-badge">Vector DB</span><span class="api-badge">Claude</span></div>
-        <span class="status-badge impl">✓ Implemented</span>
+  <div class="about-grid">
+    <div class="reveal">
+      <div class="section-kicker" data-he="על הפרויקט" data-en="About the Project">על הפרויקט</div>
+      <h2 class="section-title" data-he="מה זה t.Co?" data-en="What is t.Co?">מה זה t.Co?</h2>
+      <p class="section-body"
+        data-he="t.Co הוא פרויקט גמר לתואר שני בעיצוב לסביבות טכנולוגיות — סוכן נסיעות אישי חכם המשלב ארכיטקטורת רב-סוכנים עם עיצוב חוויית משתמש מתקדם."
+        data-en="t.Co is a master's thesis in Design for Technological Environments — an intelligent personal travel agent combining multi-agent architecture with advanced user experience design.">
+        t.Co הוא פרויקט גמר לתואר שני בעיצוב לסביבות טכנולוגיות — סוכן נסיעות אישי חכם המשלב ארכיטקטורת רב-סוכנים עם עיצוב חוויית משתמש מתקדם.
+      </p>
+      <p class="section-body" style="margin-top:16px"
+        data-he="המערכת כוללת 11 סוכני AI המתאמים ביניהם לאורך כל שלבי הנסיעה — מהתכנון הראשוני, דרך ניהול ההזמנות, ועד לליווי בשטח ולמידת ההעדפות לאורך זמן."
+        data-en="The system comprises 11 AI agents coordinating across all travel stages — from initial planning and booking management to on-the-ground guidance and long-term preference learning.">
+        המערכת כוללת 11 סוכני AI המתאמים ביניהם לאורך כל שלבי הנסיעה — מהתכנון הראשוני, דרך ניהול ההזמנות, ועד לליווי בשטח ולמידת ההעדפות לאורך זמן.
+      </p>
+      <div class="about-tags">
+        <span class="tag">LangGraph</span><span class="tag">Claude AI</span>
+        <span class="tag">Multi-Agent</span><span class="tag">RAG</span>
+        <span class="tag">Voice UX</span><span class="tag">React</span>
+        <span class="tag">Python FastAPI</span><span class="tag">ChromaDB</span>
       </div>
     </div>
-    <div class="agent-card s1">
-      <div class="agent-id">AGT-02</div>
-      <div class="agent-name">Itinerary Creation Agent</div>
-      <div class="agent-role">Generates complete day-by-day travel plans optimized for the user's profile — balancing must-sees with hidden gems, respecting energy levels and budget.</div>
-      <div class="io-block">
-        <div class="io-label">Inputs</div>
-        <ul class="io-list"><li>User profile (AGT-01 output)</li><li>Destination, dates, group size</li><li>Budget envelope</li></ul>
+    <div class="reveal reveal-delay-2">
+      <div class="about-card">
+        <div class="about-card-title" data-he="ציר הזמן" data-en="Timeline">ציר הזמן</div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div>
+            <div class="timeline-text" data-he="הגדרת שאלת המחקר וארכיטקטורת המערכת" data-en="Defining the research question and system architecture">הגדרת שאלת המחקר וארכיטקטורת המערכת</div>
+            <div class="timeline-date">Sep — Nov 2025</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div>
+            <div class="timeline-text" data-he="פיתוח POC — 3 סוכנים ראשיים ו-UI אינטראקטיבי" data-en="POC development — 3 core agents and interactive UI">פיתוח POC — 3 סוכנים ראשיים ו-UI אינטראקטיבי</div>
+            <div class="timeline-date">Dec 2025 — Feb 2026</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div>
+            <div class="timeline-text" data-he="אינטגרציה מלאה ושכלול חוויית המשתמש" data-en="Full integration and UX refinement">אינטגרציה מלאה ושכלול חוויית המשתמש</div>
+            <div class="timeline-date">Mar — Apr 2026</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div>
+            <div class="timeline-text" data-he="תצוגת גמר ותיעוד אקדמי" data-en="Final exhibition and academic documentation">תצוגת גמר ותיעוד אקדמי</div>
+            <div class="timeline-date">May — Jun 2026</div>
+          </div>
+        </div>
       </div>
-      <div class="io-block">
-        <div class="io-label">Outputs</div>
-        <ul class="io-list"><li>Structured itinerary (JSON + human-readable)</li><li>Activity cards with location, hours, cost</li><li>Map-ready coordinate set</li></ul>
-      </div>
-      <div class="agent-footer">
-        <div class="api-badges"><span class="api-badge">Google Places</span><span class="api-badge">OpenAI</span><span class="api-badge">Foursquare</span></div>
-        <span class="status-badge impl">✓ Implemented</span>
-      </div>
-    </div>
-    <div class="agent-card s1">
-      <div class="agent-id">AGT-03</div>
-      <div class="agent-name">Booking &amp; Management Agent</div>
-      <div class="agent-role">Executes reservations across flights, hotels, and restaurants — then organizes all confirmation docs, tickets, and calendar entries into a single travel pack.</div>
-      <div class="io-block">
-        <div class="io-label">Inputs</div>
-        <ul class="io-list"><li>Confirmed itinerary (AGT-02)</li><li>Payment preferences &amp; loyalty accounts</li></ul>
-      </div>
-      <div class="io-block">
-        <div class="io-label">Outputs</div>
-        <ul class="io-list"><li>Confirmed bookings &amp; PNR codes</li><li>Calendar events &amp; reminders</li><li>Document pack (tickets, vouchers)</li></ul>
-      </div>
-      <div class="agent-footer">
-        <div class="api-badges"><span class="api-badge">Amadeus</span><span class="api-badge">Booking.com</span><span class="api-badge">OpenTable</span><span class="api-badge">Google Cal</span></div>
-        <span class="status-badge conc">○ Conceptual</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- STAGE 2 -->
-  <div class="stage-header">
-    <div class="stage-num s2">S2</div>
-    <div class="stage-info">
-      <h3 style="color:#2ABFB0">During Trip — Real-Time Guidance</h3>
-      <p>Acts as an always-on local guide — sensing context, resolving disruptions, and bridging language barriers in real time.</p>
-    </div>
-  </div>
-  <div class="agents-grid">
-    <div class="agent-card s2">
-      <div class="agent-id">AGT-04</div>
-      <div class="agent-name">Location Context Agent</div>
-      <div class="agent-role">Monitors real-time position, crowd levels, and time-of-day to surface proactive, hyper-relevant suggestions — surfacing hidden gems before the traveler even asks.</div>
-      <div class="io-block">
-        <div class="io-label">Inputs</div>
-        <ul class="io-list"><li>GPS coordinates &amp; heading</li><li>Timestamp &amp; local conditions</li><li>Crowd density signals</li><li>Active user profile</li></ul>
-      </div>
-      <div class="io-block">
-        <div class="io-label">Outputs</div>
-        <ul class="io-list"><li>Ranked nearby suggestions</li><li>Contextual alerts ("Skip the queue — enter via side entrance")</li></ul>
-      </div>
-      <div class="agent-footer">
-        <div class="api-badges"><span class="api-badge">Google Maps</span><span class="api-badge">Foursquare</span><span class="api-badge">Crowd APIs</span></div>
-        <span class="status-badge conc">○ Conceptual</span>
-      </div>
-    </div>
-    <div class="agent-card s2">
-      <div class="agent-id">AGT-05</div>
-      <div class="agent-name">Schedule Optimization Agent</div>
-      <div class="agent-role">Continuously monitors for disruptions — delays, weather changes, closures — and automatically re-plans the itinerary, triggering rebooking actions where needed.</div>
-      <div class="io-block">
-        <div class="io-label">Inputs</div>
-        <ul class="io-list"><li>Live itinerary state</li><li>Flight status feeds</li><li>Weather &amp; event alerts</li></ul>
-      </div>
-      <div class="io-block">
-        <div class="io-label">Outputs</div>
-        <ul class="io-list"><li>Updated itinerary</li><li>Rebooking actions (via AGT-03)</li><li>Proactive user notifications</li></ul>
-      </div>
-      <div class="agent-footer">
-        <div class="api-badges"><span class="api-badge">FlightRadar</span><span class="api-badge">OpenWeather</span><span class="api-badge">Google Maps</span></div>
-        <span class="status-badge conc">○ Conceptual</span>
-      </div>
-    </div>
-    <div class="agent-card s2">
-      <div class="agent-id">AGT-06</div>
-      <div class="agent-name">Language &amp; Culture Agent</div>
-      <div class="agent-role">Provides real-time spoken translation and culturally nuanced etiquette guidance — from pronunciation help to awareness of local customs — eliminating communication barriers.</div>
-      <div class="io-block">
-        <div class="io-label">Inputs</div>
-        <ul class="io-list"><li>User speech or typed text</li><li>Current GPS location</li><li>Target language context</li></ul>
-      </div>
-      <div class="io-block">
-        <div class="io-label">Outputs</div>
-        <ul class="io-list"><li>Spoken &amp; written translations</li><li>Cultural etiquette tips</li><li>Pronunciation audio</li></ul>
-      </div>
-      <div class="agent-footer">
-        <div class="api-badges"><span class="api-badge">Whisper STT</span><span class="api-badge">DeepL</span><span class="api-badge">ElevenLabs</span></div>
-        <span class="status-badge impl">✓ Implemented</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- STAGE 3 -->
-  <div class="stage-header">
-    <div class="stage-num s3">S3</div>
-    <div class="stage-info">
-      <h3 style="color:#C8A44A">Post Trip — Memories &amp; Insights</h3>
-      <p>Transforms raw trip data into curated memories and actionable insights that feed the next journey.</p>
-    </div>
-  </div>
-  <div class="agents-grid">
-    <div class="agent-card s3">
-      <div class="agent-id">AGT-07</div>
-      <div class="agent-name">Memory Curation Agent</div>
-      <div class="agent-role">Organizes photos, visited locations, and experiences into a coherent travel narrative — ready to share on social media or preserve as a personal travel journal.</div>
-      <div class="io-block">
-        <div class="io-label">Inputs</div>
-        <ul class="io-list"><li>Trip photos &amp; media</li><li>Location history &amp; timestamps</li><li>Booking records (places visited)</li></ul>
-      </div>
-      <div class="io-block">
-        <div class="io-label">Outputs</div>
-        <ul class="io-list"><li>Organized photo albums</li><li>Narrative travel journal</li><li>Social media–ready posts</li></ul>
-      </div>
-      <div class="agent-footer">
-        <div class="api-badges"><span class="api-badge">Google Photos</span><span class="api-badge">GPT-4 Vision</span><span class="api-badge">Instagram API</span></div>
-        <span class="status-badge conc">○ Conceptual</span>
-      </div>
-    </div>
-    <div class="agent-card s3">
-      <div class="agent-id">AGT-08</div>
-      <div class="agent-name">Feedback &amp; Learning Agent</div>
-      <div class="agent-role">Captures explicit ratings and implicit behavioral signals to refine the user's travel profile — ensuring every future trip is better calibrated to their evolving tastes.</div>
-      <div class="io-block">
-        <div class="io-label">Inputs</div>
-        <ul class="io-list"><li>User star ratings &amp; comments</li><li>Behavioral signals (time spent, skips)</li><li>Post-trip survey responses</li></ul>
-      </div>
-      <div class="io-block">
-        <div class="io-label">Outputs</div>
-        <ul class="io-list"><li>Updated user preference profile</li><li>Insights report per destination</li><li>Recommendation model refinement</li></ul>
-      </div>
-      <div class="agent-footer">
-        <div class="api-badges"><span class="api-badge">Sentiment Analysis</span><span class="api-badge">Vector DB</span><span class="api-badge">GPT-4o</span></div>
-        <span class="status-badge conc">○ Conceptual</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- STAGE 4 -->
-  <div class="stage-header">
-    <div class="stage-num s4">S4</div>
-    <div class="stage-info">
-      <h3 style="color:#8B5CF6">Long-Term Value — The Evolving Companion</h3>
-      <p>Grows alongside the traveler over years — optimizing loyalty, safeguarding wellness, and anticipating the next adventure.</p>
-    </div>
-  </div>
-  <div class="agents-grid">
-    <div class="agent-card s4">
-      <div class="agent-id">AGT-09</div>
-      <div class="agent-name">Loyalty Optimization Agent</div>
-      <div class="agent-role">Tracks points, miles, and status across all programs — maximizing reward redemptions and steering booking decisions toward highest long-term value.</div>
-      <div class="io-block">
-        <div class="io-label">Inputs</div>
-        <ul class="io-list"><li>Booking history</li><li>Loyalty program memberships</li><li>Upcoming trip parameters</li></ul>
-      </div>
-      <div class="io-block">
-        <div class="io-label">Outputs</div>
-        <ul class="io-list"><li>Redemption recommendations</li><li>Card &amp; program upgrade suggestions</li><li>Optimal booking timing alerts</li></ul>
-      </div>
-      <div class="agent-footer">
-        <div class="api-badges"><span class="api-badge">Airline APIs</span><span class="api-badge">Hotel Loyalty</span><span class="api-badge">Points Calc</span></div>
-        <span class="status-badge conc">○ Conceptual</span>
-      </div>
-    </div>
-    <div class="agent-card s4">
-      <div class="agent-id">AGT-10</div>
-      <div class="agent-name">Wellness Agent</div>
-      <div class="agent-role">Monitors trip intensity, jet lag, and physical activity — proactively suggesting rest, recovery, or activity to maintain optimal well-being throughout the journey.</div>
-      <div class="io-block">
-        <div class="io-label">Inputs</div>
-        <ul class="io-list"><li>Activity &amp; step data</li><li>Trip schedule density</li><li>Health preferences &amp; conditions</li></ul>
-      </div>
-      <div class="io-block">
-        <div class="io-label">Outputs</div>
-        <ul class="io-list"><li>Wellness alerts &amp; rest nudges</li><li>Schedule lightening suggestions</li><li>Recovery activity recommendations</li></ul>
-      </div>
-      <div class="agent-footer">
-        <div class="api-badges"><span class="api-badge">HealthKit</span><span class="api-badge">Wearable APIs</span><span class="api-badge">GPT-4o</span></div>
-        <span class="status-badge conc">○ Conceptual</span>
-      </div>
-    </div>
-    <div class="agent-card s4">
-      <div class="agent-id">AGT-11</div>
-      <div class="agent-name">Future Trip Anticipation Agent</div>
-      <div class="agent-role">Proactively surfaces destination proposals — drawing on travel history, seasonal opportunities, trending destinations, and the traveler's evolving interests.</div>
-      <div class="io-block">
-        <div class="io-label">Inputs</div>
-        <ul class="io-list"><li>Full travel history &amp; feedback</li><li>Trending destination signals</li><li>Seasonal &amp; pricing calendars</li></ul>
-      </div>
-      <div class="io-block">
-        <div class="io-label">Outputs</div>
-        <ul class="io-list"><li>Ranked destination proposals with reasoning</li><li>Optimal travel timing windows</li><li>Estimated budget previews</li></ul>
-      </div>
-      <div class="agent-footer">
-        <div class="api-badges"><span class="api-badge">Web Search</span><span class="api-badge">Rec Engine</span><span class="api-badge">GPT-4o</span></div>
-        <span class="status-badge conc">○ Conceptual</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- 04 ORCHESTRATOR -->
-<div class="section" id="orchestrator">
-  <div class="section-label">04 — Core Orchestrator</div>
-  <h2 class="section-title">The Intelligence<br>at the Center</h2>
-  <div class="section-body"><p>The Core Personal AI is not a passive router — it is the persistent intelligence that gives the system its character. It maintains a unified, evolving model of the traveler, mediates between agents, and ensures every interaction feels cohesive and intentional rather than stitched together from disconnected services.</p></div>
-  <div class="orch-grid">
-    <div class="orch-card">
-      <h4>Core Responsibilities</h4>
-      <ul>
-        <li>Maintains the unified traveler profile across all sessions and trips</li>
-        <li>Routes user requests to the appropriate specialized agent</li>
-        <li>Manages conversation context window across all stages</li>
-        <li>Resolves conflicts between competing agent recommendations</li>
-        <li>Synthesizes multi-agent outputs into a single coherent voice</li>
-        <li>Triggers proactive outreach when context warrants it</li>
-      </ul>
-    </div>
-    <div class="orch-card">
-      <h4>Technology Foundation</h4>
-      <ul>
-        <li>LLM backbone: Anthropic Claude / OpenAI GPT-4o</li>
-        <li>Multi-agent coordination: LangGraph / CrewAI</li>
-        <li>Persistent memory: PostgreSQL + Pinecone vector store</li>
-        <li>Real-time event bus: WebSocket + message queue</li>
-        <li>Prompt engineering: structured role cards per agent</li>
-        <li>Safety layer: content moderation + PII filtering</li>
-      </ul>
-    </div>
-  </div>
-</div>
-
-<!-- 05 TECH STACK -->
-<div class="section" id="stack">
-  <div class="section-label">05 — Technical Stack</div>
-  <h2 class="section-title">Infrastructure &amp;<br>Integrations</h2>
-  <div class="stack-grid">
-    <div class="stack-card">
-      <div class="stack-category">AI / LLM Layer</div>
-      <div class="stack-items"><span class="stack-item">GPT-4o</span><span class="stack-item">Claude 3.5</span><span class="stack-item">LangGraph</span><span class="stack-item">CrewAI</span></div>
-    </div>
-    <div class="stack-card">
-      <div class="stack-category">Voice Interface</div>
-      <div class="stack-items"><span class="stack-item">OpenAI Whisper</span><span class="stack-item">ElevenLabs TTS</span><span class="stack-item">WebSpeech API</span></div>
-    </div>
-    <div class="stack-card">
-      <div class="stack-category">Location Services</div>
-      <div class="stack-items"><span class="stack-item">Google Maps Platform</span><span class="stack-item">Foursquare Places</span><span class="stack-item">HERE Maps</span></div>
-    </div>
-    <div class="stack-card">
-      <div class="stack-category">Travel &amp; Booking</div>
-      <div class="stack-items"><span class="stack-item">Amadeus Travel API</span><span class="stack-item">Booking.com API</span><span class="stack-item">OpenTable API</span></div>
-    </div>
-    <div class="stack-card">
-      <div class="stack-category">Data &amp; Memory</div>
-      <div class="stack-items"><span class="stack-item">PostgreSQL</span><span class="stack-item">Pinecone</span><span class="stack-item">Redis</span><span class="stack-item">S3</span></div>
-    </div>
-    <div class="stack-card">
-      <div class="stack-category">Frontend</div>
-      <div class="stack-items"><span class="stack-item">React 18</span><span class="stack-item">Tailwind CSS</span><span class="stack-item">Framer Motion</span><span class="stack-item">Mapbox GL</span></div>
-    </div>
-    <div class="stack-card">
-      <div class="stack-category">Backend</div>
-      <div class="stack-items"><span class="stack-item">Node.js</span><span class="stack-item">Python FastAPI</span><span class="stack-item">WebSockets</span><span class="stack-item">Docker</span></div>
-    </div>
-    <div class="stack-card">
-      <div class="stack-category">External Intelligence</div>
-      <div class="stack-items"><span class="stack-item">DeepL Translate</span><span class="stack-item">OpenWeather</span><span class="stack-item">FlightAware</span></div>
-    </div>
-  </div>
-</div>
-
-<!-- 06 DEMO SCOPE -->
-<div class="section" id="demo">
-  <div class="section-label">06 — Demo Scope</div>
-  <h2 class="section-title">Exhibition Implementation<br>vs. Full Vision</h2>
-  <div class="section-body"><p>The exhibition demo presents a working proof-of-concept for the three highest-impact agents, demonstrating the core interaction loop — from preference intake through personalized itinerary generation — with voice interaction and live visual output. The remaining agents are represented architecturally and described in context.</p></div>
-  <div class="demo-grid">
-    <div class="demo-col impl">
-      <div class="demo-col-title">✓ Implemented for Exhibition</div>
-      <ul>
-        <li>AGT-01 — Preference Profiling (conversational onboarding)</li>
-        <li>AGT-02 — Itinerary Creation (real-time generation + map viz)</li>
-        <li>AGT-06 — Language &amp; Culture Agent (live translation demo)</li>
-        <li>Voice interaction — speech-to-text input via Whisper</li>
-        <li>AI voice output — spoken responses via ElevenLabs</li>
-        <li>Real-time itinerary visualization on large screen</li>
-        <li>Interactive agent map — architecture visible as UI layer</li>
-      </ul>
-    </div>
-    <div class="demo-col conc">
-      <div class="demo-col-title">○ Conceptual / Future Work</div>
-      <ul>
-        <li>AGT-03 — Actual booking execution (payment integration)</li>
-        <li>AGT-04 — Live GPS recommendations</li>
-        <li>AGT-05 — Real disruption handling &amp; rebooking</li>
-        <li>AGT-07 — Media curation &amp; social sharing</li>
-        <li>AGT-08 — Multi-trip feedback learning loop</li>
-        <li>AGT-09 — Cross-program loyalty optimization</li>
-        <li>AGT-10 — Wearable wellness integration</li>
-        <li>AGT-11 — Long-horizon trip prediction engine</li>
-      </ul>
-    </div>
-  </div>
-</div>
-
-<!-- 07 EXHIBITION -->
-<div class="section" id="exhibition">
-  <div class="section-label">07 — Exhibition Experience</div>
-  <h2 class="section-title">The Installation:<br>Travel Intelligence, Live</h2>
-  <div class="section-body"><p>The exhibition presents the system as an immersive, large-format installation. A visitor approaches a floor-standing screen — the AI companion appears and initiates a natural conversation about their dream destination. Within minutes, a personalized itinerary materializes in real time, with a live map, day-by-day activities, and cultural insights. The full agent architecture is visible as a live background layer, making the system's intelligence transparent and visceral.</p></div>
-  <div class="exhibition-steps">
-    <div class="ex-step">
-      <div class="ex-step-num">01</div>
-      <h4>Approach &amp; Engage</h4>
-      <p>Visitor approaches the screen. The AI avatar activates and greets them with a spoken welcome. Keyboard available as fallback input.</p>
-    </div>
-    <div class="ex-step">
-      <div class="ex-step-num">02</div>
-      <h4>Dream Destination</h4>
-      <p>The AI asks: "Where have you always wanted to go?" — Preference profiling begins, extracting travel style and interests in natural dialogue.</p>
-    </div>
-    <div class="ex-step">
-      <div class="ex-step-num">03</div>
-      <h4>Live Itinerary</h4>
-      <p>A map materializes. Day-by-day activities appear in real time as the Itinerary Agent thinks — visitors watch the plan build itself.</p>
-    </div>
-    <div class="ex-step">
-      <div class="ex-step-num">04</div>
-      <h4>Language Demo</h4>
-      <p>The AI demonstrates the Language Agent — offering a phrase in the destination's language, with pronunciation and cultural context.</p>
-    </div>
-    <div class="ex-step">
-      <div class="ex-step-num">05</div>
-      <h4>Architecture Reveal</h4>
-      <p>The background agent map animates — showing which agents activated, the data flows, and how the system made its decisions.</p>
     </div>
   </div>
 </div>
 
 <!-- FOOTER -->
-<div class="doc-footer">
-  <div class="gold-line" style="margin-bottom:24px"></div>
-  <p>Personal AI Travel Companion &nbsp;·&nbsp; Architecture Document v1.0 &nbsp;·&nbsp; Thesis in Design &amp; Technology 2025</p>
-  <p style="margin-top:8px">11 Agents &nbsp;·&nbsp; 4 Stages &nbsp;·&nbsp; 1 Evolving Companion</p>
-</div>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-logo">t.Co</div>
+    <div class="footer-text" data-he="פרויקט גמר · עיצוב לסביבות טכנולוגיות · HIT 2025–2026" data-en="Master's Thesis · Design for Technological Environments · HIT 2025–2026">פרויקט גמר · עיצוב לסביבות טכנולוגיות · HIT 2025–2026</div>
+    <div class="footer-badge" data-he="סטודנט · דוד" data-en="Student · David">סטודנט · דוד</div>
+  </div>
+</footer>
 
 <script>
-  document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', e => {
-      e.preventDefault();
-      const el = document.querySelector(a.getAttribute('href'));
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  });
+/* ─── i18n ─────────────────────────────────────────────────── */
+const langConfig = {
+  he: { flag:'🇺🇸', label:'English', next:'en', dir:'rtl', htmlLang:'he', title:'t.Co — סוכן נסיעות אישי חכם' },
+  en: { flag:'🇮🇱', label:'עברית',   next:'he', dir:'ltr', htmlLang:'en', title:'t.Co — Intelligent Personal Travel Agent' }
+};
+let currentLang = localStorage.getItem('tco-lang') || 'he';
+function applyLang(lang, save=true) {
+  const cfg = langConfig[lang];
+  document.documentElement.lang = cfg.htmlLang;
+  document.documentElement.dir  = cfg.dir;
+  document.title = cfg.title;
+  document.querySelectorAll('[data-he][data-en]').forEach(el => { el.textContent = el.dataset[lang]; });
+  document.getElementById('langFlag').textContent  = cfg.flag;
+  document.getElementById('langLabel').textContent = cfg.label;
+  currentLang = lang;
+  if (save) localStorage.setItem('tco-lang', lang);
+}
+document.getElementById('langBtn').addEventListener('click', () => { applyLang(langConfig[currentLang].next); });
+applyLang(currentLang, false);
+
+/* ─── Theme — 3-state ──────────────────────────────────────── */
+const THEMES = ['system','light','dark'];
+const ICONS  = { system:'💻', light:'☀️', dark:'🌙' };
+const sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+let currentTheme = localStorage.getItem('tco-theme') || 'system';
+function resolveTheme(t) { return t==='system' ? (sysDark.matches?'dark':'light') : t; }
+function applyTheme(t, save=true) {
+  currentTheme = t;
+  document.documentElement.setAttribute('data-theme', resolveTheme(t));
+  document.getElementById('themeIcon').textContent = ICONS[t];
+  document.getElementById('themeBtn').classList.toggle('is-system', t==='system');
+  if (save) localStorage.setItem('tco-theme', t);
+}
+document.getElementById('themeBtn').addEventListener('click', () => { applyTheme(THEMES[(THEMES.indexOf(currentTheme)+1)%3]); });
+sysDark.addEventListener('change', () => { if(currentTheme==='system') applyTheme('system',false); });
+applyTheme(currentTheme, false);
+
+/* ─── Scroll reveal ────────────────────────────────────────── */
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); } });
+}, { threshold:.12, rootMargin:'0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 </script>
 </body>
 </html>

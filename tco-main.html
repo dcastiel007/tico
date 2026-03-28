@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="he" dir="rtl" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>t.Co — Your Personal Travel Concierge</title>
+<title>t.Co — סוכן נסיעות אישי חכם</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500&family=Heebo:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
 <style>
 /* ═══ THEME TOKENS ════════════════════════════════════════════════════════ */
 :root, [data-theme="light"] {
@@ -52,7 +52,9 @@
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
-html, body { width:100%; height:100%; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; overflow:hidden; transition:background .25s,color .25s; }
+html, body { width:100%; height:100%; background:var(--bg); color:var(--text); font-family:'Heebo','DM Sans',sans-serif; overflow:hidden; transition:background .25s,color .25s; }
+html[lang='en'] body { direction:ltr; font-family:'DM Sans',sans-serif; }
+html[lang='he'] body { direction:rtl; }
 
 /* ── LAYOUT ────────────────────────────────────────────────────────────── */
 .shell { display:grid; grid-template-rows:56px 1fr 48px; height:100vh; width:100vw; }
@@ -85,6 +87,7 @@ html, body { width:100%; height:100%; background:var(--bg); color:var(--text); f
   transition:border-color .2s,background .25s;
 }
 .hdr-icon:hover { border-color:var(--gold); }
+#themeBtn.is-system::after{content:'';position:absolute;bottom:1px;right:1px;width:6px;height:6px;border-radius:50%;background:var(--gold);border:1px solid var(--bg);}
 
 /* Theme switcher */
 .theme-switcher { display:flex; background:var(--card); border:1px solid var(--border2); border-radius:20px; overflow:hidden; }
@@ -239,18 +242,19 @@ html, body { width:100%; height:100%; background:var(--bg); color:var(--text); f
     <div class="logo">
       <div class="logo-mark">t.Co</div>
       <div class="logo-sep"></div>
-      <div class="logo-sub">Your Personal Travel Concierge</div>
+      <div class="logo-sub">סוכן נסיעות אישי</div>
+      <a href="index.html" style="font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);text-decoration:none;padding:3px 10px;border:1px solid var(--border2);border-radius:12px;margin-right:8px;transition:all .2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)';" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--muted)';">← Index</a>
     </div>
     <div class="hdr-center">
       <div class="trip-pill">
         <div class="trip-dot"></div>
-        Planning &nbsp;<span class="dest">Tokyo, Japan</span>&nbsp;· 7 days
+        Planning &nbsp;<span class="dest" data-he="טוקיו, יפן" data-en="Tokyo, Japan">טוקיו, יפן</span>&nbsp;· 7 days
       </div>
     </div>
     <div class="hdr-right">
       <div class="stage-indicator">
         <div class="stage-dot" style="background:#3B82B6"></div>
-        <span>Stage 1 — Planning</span>
+        <span>שלב 1 — תכנון</span>
       </div>
       <!-- THEME SWITCHER -->
       <div class="theme-switcher" id="theme-switcher">
@@ -267,7 +271,7 @@ html, body { width:100%; height:100%; background:var(--bg); color:var(--text); f
 
     <!-- LEFT: CONVERSATION -->
     <div class="panel-left">
-      <div class="panel-label"><span>Conversation</span><span style="font-size:9px;color:var(--green)">● Live</span></div>
+      <div class="panel-label"><span data-he="שיחה" data-en="Conversation">שיחה</span><span style="font-size:9px;color:var(--green)">● Live</span></div>
       <div class="chat-area" id="chat">
         <div class="msg ai animate-in">
           <div class="msg-sender">t.Co</div>
@@ -360,49 +364,49 @@ html, body { width:100%; height:100%; background:var(--bg); color:var(--text); f
     <!-- RIGHT: ITINERARY -->
     <div class="panel-right">
       <div class="itin-header">
-        <div><div class="itin-dest">Tokyo, Japan</div><div class="itin-dates">Apr 12–19, 2026 &nbsp;·&nbsp; 2 travelers</div></div>
+        <div><div class="itin-dest" data-he="טוקיו, יפן" data-en="Tokyo, Japan">טוקיו, יפן</div><div class="itin-dates">Apr 12–19, 2026 &nbsp;·&nbsp; 2 travelers</div></div>
         <div style="font-size:18px;cursor:pointer;color:var(--muted)">↗</div>
       </div>
-      <div class="itin-tabs">
-        <div class="itin-tab active">Itinerary</div>
-        <div class="itin-tab">Hotels</div>
-        <div class="itin-tab">Budget</div>
+      <div data-he="סקירה" data-en="Overview" class="itin-tabs">
+        <div data-he="יום אחר יום" data-en="Day by Day" class="itin-tab active" data-he="לוח זמנים" data-en="Itinerary">לוח זמנים</div>
+        <div data-he="תקציב" data-en="Budget" class="itin-tab">Hotels</div>
+        <div data-he="סוכנים" data-en="Agents" class="itin-tab">תקציב</div>
         <div class="itin-tab">Tips</div>
       </div>
       <div class="itin-scroll">
         <div class="day-card animate-in">
           <div class="day-card-header">
-            <div><div class="day-num" style="color:#3A72A8">Day 01 · Apr 12</div><div class="day-title">Arrive &amp; Shinjuku</div></div>
+            <div><div class="day-num" style="color:#3A72A8">Day 01 · Apr 12</div><div class="day-title" data-he="הגעה ושינג'וקו" data-en="Arrive &amp; Shinjuku">הגעה ושינג'וקו</div></div>
             <div style="font-size:18px">🗼</div>
           </div>
           <div>
-            <div class="activity"><div class="activity-time">14:00</div><div class="activity-dot" style="background:#3A72A8"></div><div><div class="activity-name">Narita Airport → Hotel</div><div class="activity-meta">Narita Express · 53 min</div></div></div>
-            <div class="activity"><div class="activity-time">18:00</div><div class="activity-dot" style="background:#9A7428"></div><div><div class="activity-name">Shinjuku Golden Gai</div><div class="activity-meta">Classic tiny bars district</div><div class="activity-badge" style="background:rgba(154,116,40,0.1);color:var(--gold);border:1px solid rgba(154,116,40,0.2)">Hidden gem ✦</div></div></div>
-            <div class="activity"><div class="activity-time">20:00</div><div class="activity-dot" style="background:#C07828"></div><div><div class="activity-name">Omoide Yokocho dinner</div><div class="activity-meta">Street yakitori · ~¥3,000</div></div></div>
+            <div class="activity"><div class="activity-time">14:00</div><div class="activity-dot" style="background:#3A72A8"></div><div><div class="activity-name" data-he="נמל תעופה נאריטה → מלון" data-en="Narita Airport → Hotel">נמל תעופה נאריטה → מלון</div><div class="activity-meta" data-he="Narita Express · 53 דק׳" data-en="Narita Express · 53 min">Narita Express · 53 דק׳</div></div></div>
+            <div class="activity"><div class="activity-time">18:00</div><div class="activity-dot" style="background:#9A7428"></div><div><div class="activity-name" data-he="שינג'וקו גולדן גאי" data-en="Shinjuku Golden Gai">שינג'וקו גולדן גאי</div><div class="activity-meta" data-he="מחוז הברים הקטנים הקלאסי" data-en="Classic tiny bars district">מחוז הברים הקטנים הקלאסי</div><div class="activity-badge" style="background:rgba(154,116,40,0.1);color:var(--gold);border:1px solid rgba(154,116,40,0.2)" data-he="אבן חן נסתרת ✦" data-en="Hidden gem ✦">אבן חן נסתרת ✦</div></div></div>
+            <div class="activity"><div class="activity-time">20:00</div><div class="activity-dot" style="background:#C07828"></div><div><div class="activity-name" data-he="ארוחת ערב אומואידה יוקו-צ'ו" data-en="Omoide Yokocho dinner">ארוחת ערב אומואידה יוקו-צ'ו</div><div class="activity-meta" data-he="יקיטורי רחוב · ~¥3,000" data-en="Street yakitori · ~¥3,000">יקיטורי רחוב · ~¥3,000</div></div></div>
           </div>
         </div>
         <div class="day-card animate-in" style="animation-delay:.1s">
           <div class="day-card-header">
-            <div><div class="day-num" style="color:#7A5A9A">Day 02 · Apr 13</div><div class="day-title">Design &amp; Harajuku</div></div>
+            <div><div class="day-num" style="color:#7A5A9A">Day 02 · Apr 13</div><div class="day-title" data-he="עיצוב והאראג'וקו" data-en="Design &amp; Harajuku">עיצוב והאראג'וקו</div></div>
             <div style="font-size:18px">🎨</div>
           </div>
           <div>
-            <div class="activity"><div class="activity-time">09:00</div><div class="activity-dot" style="background:#7A5A9A"></div><div><div class="activity-name">21_21 Design Sight</div><div class="activity-meta">Tadao Ando architecture · ¥1,200</div><div class="activity-badge" style="background:rgba(122,90,154,0.1);color:#7A5A9A;border:1px solid rgba(122,90,154,0.2)">Must-see 🎯</div></div></div>
-            <div class="activity"><div class="activity-time">13:00</div><div class="activity-dot" style="background:#9A7428"></div><div><div class="activity-name">Harajuku + Omotesando</div><div class="activity-meta">Street fashion + flagship stores</div></div></div>
+            <div class="activity"><div class="activity-time">09:00</div><div class="activity-dot" style="background:#7A5A9A"></div><div><div class="activity-name" data-he="21_21 Design Sight" data-en="21_21 Design Sight">21_21 Design Sight</div><div class="activity-meta" data-he="אדריכלות טאדאו אנדו · ¥1,200" data-en="Tadao Ando architecture · ¥1,200">אדריכלות טאדאו אנדו · ¥1,200</div><div class="activity-badge" style="background:rgba(122,90,154,0.1);color:#7A5A9A;border:1px solid rgba(122,90,154,0.2)" data-he="חובה לראות 🎯" data-en="Must-see 🎯">חובה לראות 🎯</div></div></div>
+            <div class="activity"><div class="activity-time">13:00</div><div class="activity-dot" style="background:#9A7428"></div><div><div class="activity-name" data-he="האראג'וקו + אומוטסנדו" data-en="Harajuku + Omotesando">האראג'וקו + אומוטסנדו</div><div class="activity-meta" data-he="אופנת רחוב + חנויות דגל" data-en="Street fashion + flagship stores">אופנת רחוב + חנויות דגל</div></div></div>
           </div>
         </div>
         <div class="building-row">
           <span class="building-dot"></span><span class="building-dot"></span><span class="building-dot"></span>
-          <span style="font-size:11px;color:var(--muted);margin-left:4px">Building days 3–7…</span>
+          <span style="font-size:11px;color:var(--muted);margin-left:4px" data-he="בניית ימים 3–7…" data-en="Building days 3–7…">בניית ימים 3–7…</span>
         </div>
         <div class="budget-card">
-          <div class="budget-title">Budget Estimate</div>
-          <div class="budget-row"><span class="budget-label">Accommodation</span><span class="budget-val">$840</span></div>
-          <div class="budget-row"><span class="budget-label">Food &amp; Dining</span><span class="budget-val">$420</span></div>
-          <div class="budget-row"><span class="budget-label">Activities</span><span class="budget-val">$280</span></div>
-          <div class="budget-row"><span class="budget-label">Transport</span><span class="budget-val">$140</span></div>
+          <div class="budget-title" data-he="הערכת תקציב" data-en="Budget Estimate">הערכת תקציב</div>
+          <div class="budget-row"><span class="budget-label" data-he="לינה" data-en="Accommodation">לינה</span><span class="budget-val">$840</span></div>
+          <div class="budget-row"><span class="budget-label" data-he="אוכל ומסעדות" data-en="Food &amp; Dining">אוכל ומסעדות</span><span class="budget-val">$420</span></div>
+          <div class="budget-row"><span class="budget-label" data-he="פעילויות" data-en="Activities">פעילויות</span><span class="budget-val">$280</span></div>
+          <div class="budget-row"><span class="budget-label" data-he="תחבורה" data-en="Transport">תחבורה</span><span class="budget-val">$140</span></div>
           <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border2);display:flex;justify-content:space-between;align-items:baseline">
-            <span style="font-size:12px;font-weight:500">Total</span>
+            <span style="font-size:12px;font-weight:500" data-he="סה״כ" data-en="Total">סה״כ</span>
             <span style="font-size:14px;font-family:'Cormorant Garamond',serif;color:var(--gold)">$1,680</span>
           </div>
           <div class="budget-bar-wrap"><div class="budget-bar" style="width:72%"></div></div>
@@ -416,17 +420,17 @@ html, body { width:100%; height:100%; background:var(--bg); color:var(--text); f
   <div class="statusbar">
     <div class="agents-row">
       <span style="font-size:10px;color:var(--muted2);letter-spacing:1px;margin-right:4px">AGENTS</span>
-      <div class="agent-chip active"><div class="chip-dot" style="background:#3A72A8"></div>AGT-01 Profiling</div>
-      <div class="agent-chip active"><div class="chip-dot" style="background:#2ABFB0"></div>AGT-02 Itinerary</div>
-      <div class="agent-chip" style="opacity:.4"><div class="chip-dot" style="background:#7A5A9A"></div>AGT-03 Booking</div>
-      <div class="agent-chip" style="opacity:.4"><div class="chip-dot" style="background:#C07828"></div>AGT-04 Location</div>
-      <div class="agent-chip"><div class="chip-dot" style="background:#9A7428"></div>AGT-06 Language</div>
+      <div class="agent-chip active"><div class="chip-dot" style="background:#3A72A8"></div data-he="AGT-01 פרופיל" data-en="AGT-01 Profiling">AGT-01 פרופיל</div>
+      <div class="agent-chip active"><div class="chip-dot" style="background:#2ABFB0"></div data-he="AGT-02 מסלול" data-en="AGT-02 Itinerary">AGT-02 מסלול</div>
+      <div class="agent-chip" style="opacity:.4"><div class="chip-dot" style="background:#7A5A9A"></div data-he="AGT-03 הזמנות" data-en="AGT-03 Booking">AGT-03 הזמנות</div>
+      <div class="agent-chip" style="opacity:.4"><div class="chip-dot" style="background:#C07828"></div data-he="AGT-04 מיקום" data-en="AGT-04 Location">AGT-04 מיקום</div>
+      <div class="agent-chip"><div class="chip-dot" style="background:#9A7428"></div data-he="AGT-06 שפה" data-en="AGT-06 Language">AGT-06 שפה</div>
     </div>
     <div class="status-right">
       <span>Tokyo · 35°N 139°E</span>
       <span>¥1 = $0.0067</span>
-      <span>Spring · 18°C</span>
-      <div class="status-badge">● Stage 1 Active</div>
+      <span data-he="אביב · 18°C" data-en="Spring · 18°C">אביב · 18°C</span>
+      <div class="status-badge">● שלב 1 פעיל</div>
     </div>
   </div>
 
@@ -443,34 +447,48 @@ html, body { width:100%; height:100%; background:var(--bg); color:var(--text); f
 </style>
 
 <script>
-// ── Theme system ──────────────────────────────────────────────────────────
-const mq = window.matchMedia('(prefers-color-scheme: dark)');
-
-function applyTheme(mode) {
-  const html = document.documentElement;
-  if (mode === 'system') {
-    html.setAttribute('data-theme', mq.matches ? 'dark' : 'light');
-  } else {
-    html.setAttribute('data-theme', mode);
-  }
+// ── i18n ──────────────────────────────────────────────────────────────────
+const langConfig = {
+  he: { flag:'🇺🇸', label:'EN', next:'en', dir:'rtl', htmlLang:'he', title:'t.Co — סוכן נסיעות אישי' },
+  en: { flag:'🇮🇱', label:'HE', next:'he', dir:'ltr', htmlLang:'en', title:'t.Co — AI Travel Agent' }
+};
+let currentLang = localStorage.getItem('tco-lang') || 'he';
+function applyLang(lang, save=true) {
+  const cfg = langConfig[lang];
+  document.documentElement.lang = cfg.htmlLang;
+  document.documentElement.dir  = cfg.dir;
+  document.title = cfg.title;
+  document.querySelectorAll('[data-he][data-en]').forEach(el => { el.textContent = el.dataset[lang]; });
+  document.getElementById('langFlag').textContent = cfg.flag;
+  document.getElementById('langLabel').textContent = cfg.label;
+  const inp = document.getElementById('user-input');
+  if(inp) inp.placeholder = lang==='he' ? 'הקלד או דבר...' : 'Type or speak...';
+  currentLang = lang;
+  if(save) localStorage.setItem('tco-lang', lang);
 }
+const lb2 = document.getElementById('langBtn');
+if(lb2) lb2.addEventListener('click', () => applyLang(langConfig[currentLang].next));
+applyLang(currentLang, false);
 
-function setTheme(mode) {
-  localStorage.setItem('tco-theme', mode);
-  applyTheme(mode);
-  document.querySelectorAll('.theme-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.mode === mode);
-  });
+// ── Shared theme engine ───────────────────────────────────────────────────
+const THEMES=['system','light','dark'];
+const ICONS={system:'💻',light:'☀️',dark:'🌙'};
+const sysDark=window.matchMedia('(prefers-color-scheme: dark)');
+let currentTheme=localStorage.getItem('tco-theme')||'system';
+function resolveTheme(t){return t==='system'?(sysDark.matches?'dark':'light'):t;}
+function applyTheme(t,save=true){
+  currentTheme=t;
+  document.documentElement.setAttribute('data-theme',resolveTheme(t));
+  const icon=document.getElementById('themeIcon');
+  const btn=document.getElementById('themeBtn');
+  if(icon) icon.textContent=ICONS[t];
+  if(btn) btn.classList.toggle('is-system',t==='system');
+  if(save) localStorage.setItem('tco-theme',t);
 }
-
-// Init
-const saved = localStorage.getItem('tco-theme') || 'light';
-setTheme(saved);
-
-// System theme changes
-mq.addEventListener('change', () => {
-  if(localStorage.getItem('tco-theme') === 'system') applyTheme('system');
-});
+const tb=document.getElementById('themeBtn');
+if(tb) tb.addEventListener('click',()=>applyTheme(THEMES[(THEMES.indexOf(currentTheme)+1)%3]));
+sysDark.addEventListener('change',()=>{if(currentTheme==='system') applyTheme('system',false);});
+applyTheme(currentTheme,false);
 
 // Typing indicator
 setInterval(() => {
