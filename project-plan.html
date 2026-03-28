@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="he">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,61 +14,113 @@
   --p4: #F59E0B; --p5: #C8A44A; --p6: #2DAA6A; --p7: #E05252;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
-body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px; direction:rtl; }
+body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px; }
+
+/* Cover — RTL for Hebrew */
 .cover {
+  direction: rtl;
   background: radial-gradient(ellipse at 50% 40%, #0D1535 0%, #07091A 70%);
-  padding: 72px 60px 56px; border-bottom: 1px solid var(--border);
-  display:flex; justify-content:space-between; align-items:flex-end;
+  padding: 64px 60px 48px;
+  border-bottom: 1px solid var(--border);
+  display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:24px;
 }
-.cover-left h1 { font-family:'Cormorant Garamond',serif; font-size:52px; font-weight:300; line-height:1.1; }
-.cover-left h1 span { color:var(--gold); }
-.cover-left .sub { color:var(--muted); font-size:15px; margin-top:10px; letter-spacing:.5px; }
-.stat-box { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 24px; text-align:center; margin-bottom:10px; }
-.stat-num { font-family:'Cormorant Garamond',serif; font-size:36px; color:var(--gold); font-weight:300; }
-.stat-label { font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-top:2px; }
+.cover h1 { font-family:'Cormorant Garamond',serif; font-size:48px; font-weight:300; line-height:1.1; }
+.cover h1 span { color:var(--gold); }
+.cover .sub { color:var(--muted); font-size:14px; margin-top:8px; }
+.stat-row { display:flex; gap:10px; flex-wrap:wrap; direction:ltr; }
+.stat-box { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:14px 20px; text-align:center; }
+.stat-num { font-family:'Cormorant Garamond',serif; font-size:32px; color:var(--gold); font-weight:300; }
+.stat-label { font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-top:2px; }
+
+/* Legend — RTL */
 .legend-bar {
-  display:flex; gap:0; padding:0 60px; border-bottom:1px solid var(--border);
-  background:#08091F; overflow-x:auto;
+  direction:rtl; display:flex; flex-wrap:wrap; padding:0 60px;
+  border-bottom:1px solid var(--border); background:#08091F;
 }
-.legend-item { display:flex; align-items:center; gap:8px; padding:14px 20px; font-size:12px; color:var(--muted); white-space:nowrap; }
+.legend-item { display:flex; align-items:center; gap:8px; padding:12px 16px; font-size:12px; color:var(--muted); }
 .legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-.gantt-wrap { padding:0 60px 60px; overflow-x:auto; }
-.month-header { display:flex; border-bottom:1px solid var(--border); height:36px; }
-.month-header-left { width:280px; flex-shrink:0; padding:0 16px; display:flex; align-items:center; }
-.month-header-left span { font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
-.timeline-months { flex:1; position:relative; display:flex; }
-.month-cell { border-right:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; padding:0 12px; flex-shrink:0; }
-.month-cell span { font-size:12px; color:#8A8070; letter-spacing:1px; }
-.section-divider { height:1px; background:var(--border); margin:0 60px; }
-.summary-cards { display:grid; grid-template-columns:repeat(7,1fr); gap:10px; padding:28px 60px; }
-.sum-card { background:var(--card); border:1px solid rgba(255,255,255,.05); border-radius:8px; padding:16px; }
-.sum-card-phase { font-size:9px; letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; }
-.sum-card-name { font-family:'Cormorant Garamond',serif; font-size:15px; color:var(--text); margin-bottom:6px; font-weight:400; }
-.sum-card-dates { font-size:10px; color:var(--muted); margin-bottom:8px; direction:ltr; }
-.sum-card-tasks { font-size:11px; color:var(--muted); }
-.sum-card-tasks li { padding:2px 0; list-style:none; position:relative; padding-right:12px; }
-.sum-card-tasks li::before { content:'·'; position:absolute; right:0; color:var(--gold); }
-footer { text-align:center; padding:32px; border-top:1px solid var(--border); color:var(--muted); font-size:11px; letter-spacing:1px; }
+
+/* ═══ GANTT — always LTR ═══ */
+.gantt-section { direction:ltr; padding:0 40px 60px; overflow-x:auto; }
+
+.gantt-table { min-width:900px; width:100%; border-collapse:collapse; }
+
+/* Column widths */
+.col-task  { width:230px; }
+.col-dates { width:130px; }
+.col-chart { /* flex */ }
+
+/* Month header row */
+.month-hdr { background:#08091F; }
+.month-hdr td { border-bottom:1px solid var(--border); padding:8px 0; }
+.month-hdr .lbl-cell { padding:8px 14px; font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; text-align:left; }
+.month-hdr .dates-cell { padding:8px 0; font-size:11px; color:var(--muted); letter-spacing:1px; text-align:center; }
+.months-row { display:flex; height:100%; align-items:center; }
+.month-slot { flex:1; text-align:center; padding:0 4px; font-size:11px; color:var(--muted); letter-spacing:1px; border-right:1px solid rgba(255,255,255,0.07); }
+.month-slot:last-child { border-right:none; }
+
+/* Phase header rows */
+.phase-hdr td { padding:9px 14px; }
+.phase-hdr .phase-title { font-size:12px; font-weight:500; letter-spacing:.3px; display:flex; align-items:center; gap:8px; }
+.ph-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+/* Task rows */
+.task-tr { border-bottom:1px solid rgba(255,255,255,0.025); transition:background .15s; }
+.task-tr:hover { background:rgba(255,255,255,0.025); }
+.task-tr td { padding:5px 0; vertical-align:middle; }
+
+/* Task label (Hebrew → RTL inside LTR table) */
+.task-lbl { direction:rtl; text-align:right; padding:0 14px; display:flex; align-items:center; justify-content:space-between; gap:6px; }
+.task-name { font-size:12px; color:#9A9080; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:160px; }
+.task-tag  { font-size:9px; padding:2px 5px; border-radius:3px; letter-spacing:.5px; flex-shrink:0; }
+
+/* Date range cell */
+.dates-cell { text-align:center; padding:0 6px; }
+.date-range { font-size:10px; color:var(--muted); direction:ltr; white-space:nowrap; }
+
+/* Bar cell */
+.bar-cell { position:relative; padding:0; }
+.bar-inner { position:relative; height:32px; }
+.grid-line-v { position:absolute; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.05); }
+.bar { position:absolute; height:14px; top:50%; transform:translateY(-50%); border-radius:7px; overflow:hidden; display:flex; align-items:center; padding:0 6px; }
+.bar span { font-size:9px; color:rgba(255,255,255,.55); white-space:nowrap; overflow:hidden; }
+.milestone-diamond { position:absolute; top:50%; transform:translateY(-50%) rotate(45deg); width:12px; height:12px; border-radius:2px; }
+.deadline-line { position:absolute; top:0; bottom:0; width:2px; z-index:5; }
+.deadline-lbl { position:absolute; top:2px; font-size:8px; letter-spacing:.8px; transform:translateX(-50%); white-space:nowrap; padding:0 3px; background:var(--bg); }
+
+/* Summary cards */
+.summary { direction:rtl; display:grid; grid-template-columns:repeat(7,1fr); gap:10px; padding:28px 60px; }
+.sum-card { background:var(--card); border:1px solid rgba(255,255,255,.05); border-radius:8px; padding:14px; }
+.sum-phase { font-size:9px; letter-spacing:2px; text-transform:uppercase; margin-bottom:5px; }
+.sum-name  { font-family:'Cormorant Garamond',serif; font-size:15px; margin-bottom:4px; }
+.sum-dates { font-size:10px; color:var(--muted); margin-bottom:8px; direction:ltr; }
+.sum-tasks { font-size:11px; color:var(--muted); list-style:none; }
+.sum-tasks li { padding:2px 0; position:relative; padding-right:12px; }
+.sum-tasks li::before { content:'·'; position:absolute; right:0; color:var(--gold); }
+
+footer { text-align:center; padding:28px; border-top:1px solid var(--border); color:var(--muted); font-size:11px; letter-spacing:1px; }
+
+@media (max-width:760px) { .summary { grid-template-columns:1fr 1fr; } .cover { padding:40px 24px 32px; } }
 </style>
 </head>
 <body>
 
+<!-- COVER -->
 <div class="cover">
-  <div class="cover-left">
-    <p style="font-size:11px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:14px">תכנית עבודה · 2026</p>
+  <div>
+    <p style="font-size:11px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:12px">תכנית עבודה · 2026</p>
     <h1>Personal AI<br><span>Travel Companion</span></h1>
     <p class="sub">Project Roadmap — April through August 2026</p>
   </div>
-  <div class="cover-right">
-    <div style="display:flex;gap:12px">
-      <div class="stat-box"><div class="stat-num">17</div><div class="stat-label">Milestones</div></div>
-      <div class="stat-box"><div class="stat-num">7</div><div class="stat-label">Phases</div></div>
-      <div class="stat-box"><div class="stat-num" style="color:#2DAA6A">Aug 4</div><div class="stat-label">Submission</div></div>
-      <div class="stat-box"><div class="stat-num" style="color:#2DAA6A">Aug 6</div><div class="stat-label">Exhibition</div></div>
-    </div>
+  <div class="stat-row">
+    <div class="stat-box"><div class="stat-num">29</div><div class="stat-label">Tasks</div></div>
+    <div class="stat-box"><div class="stat-num">7</div><div class="stat-label">Phases</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:#E05252">Aug 4</div><div class="stat-label">Submission</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:#2DAA6A">Aug 6</div><div class="stat-label">Exhibition</div></div>
   </div>
 </div>
 
+<!-- LEGEND -->
 <div class="legend-bar">
   <div class="legend-item"><div class="legend-dot" style="background:var(--p1)"></div>Phase 1 — Foundation</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--p2)"></div>Phase 2 — Design</div>
@@ -79,223 +131,256 @@ footer { text-align:center; padding:32px; border-top:1px solid var(--border); co
   <div class="legend-item"><div class="legend-dot" style="background:var(--p7)"></div>Phase 7 — Teardown</div>
 </div>
 
-<div class="gantt-wrap">
-  <div class="month-header">
-    <div class="month-header-left"><span>Task</span></div>
-    <div class="timeline-months" id="tl-months"></div>
-  </div>
-  <div id="gantt-body" style="position:relative"></div>
+<!-- GANTT -->
+<div class="gantt-section">
+<table class="gantt-table" id="gantt"></table>
 </div>
 
-<div class="section-divider"></div>
+<div style="height:1px;background:var(--border);margin:0 40px"></div>
 
-<div class="summary-cards">
+<!-- SUMMARY CARDS -->
+<div class="summary">
   <div class="sum-card" style="border-top:2px solid var(--p1)">
-    <div class="sum-card-phase" style="color:var(--p1)">Phase 1</div>
-    <div class="sum-card-name">Foundation</div>
-    <div class="sum-card-dates">Apr 1 → Apr 15</div>
-    <ul class="sum-card-tasks"><li>אפיון מפורט ו-UX</li><li>זהות מותג</li><li>תסריטי שיחה</li><li>הכנת תוכן</li></ul>
+    <div class="sum-phase" style="color:var(--p1)">Phase 1</div>
+    <div class="sum-name">Foundation</div>
+    <div class="sum-dates">Apr 1 → Apr 20</div>
+    <ul class="sum-tasks"><li>אפיון ו-UX</li><li>זהות מותג</li><li>תסריטי שיחה</li><li>הכנת תוכן</li></ul>
   </div>
   <div class="sum-card" style="border-top:2px solid var(--p2)">
-    <div class="sum-card-phase" style="color:var(--p2)">Phase 2</div>
-    <div class="sum-card-name">Design</div>
-    <div class="sum-card-dates">Apr 15 → May 20</div>
-    <ul class="sum-card-tasks"><li>מערכת ויזואלית</li><li>Wireframes</li><li>עיצוב אווטאר</li><li>קונספט מרחב</li></ul>
+    <div class="sum-phase" style="color:var(--p2)">Phase 2</div>
+    <div class="sum-name">Design</div>
+    <div class="sum-dates">Apr 12 → May 25</div>
+    <ul class="sum-tasks"><li>Design system</li><li>Wireframes</li><li>אווטאר</li><li>מרחב תצוגה</li></ul>
   </div>
   <div class="sum-card" style="border-top:2px solid var(--p3)">
-    <div class="sum-card-phase" style="color:var(--p3)">Phase 3</div>
-    <div class="sum-card-name">Development</div>
-    <div class="sum-card-dates">May 1 → Jul 5</div>
-    <ul class="sum-card-tasks"><li>Infrastructure &amp; APIs</li><li>AGT-01, 02, 06</li><li>Frontend App</li><li>Voice interface</li></ul>
+    <div class="sum-phase" style="color:var(--p3)">Phase 3</div>
+    <div class="sum-name">Development</div>
+    <div class="sum-dates">May 1 → Jul 5</div>
+    <ul class="sum-tasks"><li>Infrastructure</li><li>APIs</li><li>AGT-01/02/06</li><li>Frontend + Voice</li></ul>
   </div>
   <div class="sum-card" style="border-top:2px solid var(--p4)">
-    <div class="sum-card-phase" style="color:var(--p4)">Phase 4</div>
-    <div class="sum-card-name">Testing</div>
-    <div class="sum-card-dates">Jul 1 → Jul 31</div>
-    <ul class="sum-card-tasks"><li>System integration</li><li>Pilot testing</li><li>Bug fixes</li><li>Contingency plan</li></ul>
+    <div class="sum-phase" style="color:var(--p4)">Phase 4</div>
+    <div class="sum-name">Testing</div>
+    <div class="sum-dates">Jul 1 → Aug 3</div>
+    <ul class="sum-tasks"><li>QA</li><li>Pilot (5 users)</li><li>Bug fixes</li><li>Contingency</li></ul>
   </div>
   <div class="sum-card" style="border-top:2px solid var(--p5)">
-    <div class="sum-card-phase" style="color:var(--p5)">Phase 5</div>
-    <div class="sum-card-name">Production</div>
-    <div class="sum-card-dates">Aug 1 → Aug 5</div>
-    <ul class="sum-card-tasks"><li>פוסטרים ומיצבים</li><li>הרכבת חומרה</li><li>Dry run</li><li>📌 הגשה: Aug 4</li></ul>
+    <div class="sum-phase" style="color:var(--p5)">Phase 5</div>
+    <div class="sum-name">Production</div>
+    <div class="sum-dates">Aug 1 → Aug 5</div>
+    <ul class="sum-tasks"><li>פוסטרים</li><li>חומרה</li><li>Dry run</li><li>📌 הגשה Aug 4</li></ul>
   </div>
   <div class="sum-card" style="border-top:2px solid var(--p6)">
-    <div class="sum-card-phase" style="color:var(--p6)">Phase 6</div>
-    <div class="sum-card-name">Exhibition</div>
-    <div class="sum-card-dates">Aug 5–6 Setup · Aug 6–19 Live</div>
-    <ul class="sum-card-tasks"><li>הקמת התערוכה</li><li>ימי תערוכה</li><li>תיעוד &amp; צילום</li></ul>
+    <div class="sum-phase" style="color:var(--p6)">Phase 6</div>
+    <div class="sum-name">Exhibition</div>
+    <div class="sum-dates">Aug 5 Setup · Aug 6–19 Live</div>
+    <ul class="sum-tasks"><li>הקמה</li><li>ימי תערוכה</li><li>תיעוד</li></ul>
   </div>
   <div class="sum-card" style="border-top:2px solid var(--p7)">
-    <div class="sum-card-phase" style="color:var(--p7)">Phase 7</div>
-    <div class="sum-card-name">Teardown</div>
-    <div class="sum-card-dates">Aug 20</div>
-    <ul class="sum-card-tasks"><li>פירוק המיצב</li><li>איסוף ציוד</li><li>תיעוד סיכום</li></ul>
+    <div class="sum-phase" style="color:var(--p7)">Phase 7</div>
+    <div class="sum-name">Teardown</div>
+    <div class="sum-dates">Aug 20</div>
+    <ul class="sum-tasks"><li>פירוק מיצב</li><li>איסוף ציוד</li><li>סיכום</li></ul>
   </div>
 </div>
 
-<footer>Personal AI Travel Companion &nbsp;·&nbsp; Project Plan v1.1 &nbsp;·&nbsp; 2026 &nbsp;·&nbsp; הגשה: 4 אוגוסט &nbsp;·&nbsp; תערוכה: 6–19 אוגוסט</footer>
+<footer>Personal AI Travel Companion &nbsp;·&nbsp; Project Plan v1.2 &nbsp;·&nbsp; Submission: 4 Aug 2026 &nbsp;·&nbsp; Exhibition: 6–19 Aug 2026</footer>
 
 <script>
-const START = new Date('2026-04-01');
-const END   = new Date('2026-08-21');
+const START      = new Date('2026-04-01');
+const END        = new Date('2026-08-21');
 const TOTAL_DAYS = (END - START) / 86400000;
-const TODAY = new Date('2026-03-28');
 
-const PHASES = [
-  { id:1, name:'Phase 1 — Foundation',   color:'#3B82B6', start:'2026-04-01', end:'2026-04-15' },
-  { id:2, name:'Phase 2 — Design',       color:'#8B5CF6', start:'2026-04-12', end:'2026-05-20' },
-  { id:3, name:'Phase 3 — Development',  color:'#2ABFB0', start:'2026-05-01', end:'2026-07-05' },
-  { id:4, name:'Phase 4 — Testing',      color:'#F59E0B', start:'2026-07-01', end:'2026-07-31' },
-  { id:5, name:'Phase 5 — Production',   color:'#C8A44A', start:'2026-08-01', end:'2026-08-05' },
-  { id:6, name:'Phase 6 — Exhibition',   color:'#2DAA6A', start:'2026-08-05', end:'2026-08-19' },
-  { id:7, name:'Phase 7 — Teardown',     color:'#E05252', start:'2026-08-20', end:'2026-08-20' },
-];
-
-const TASKS = [
-  { phase:1, name:'אפיון מפורט + UX flows',          start:'2026-04-01', end:'2026-04-12', tag:'key',    tagLabel:'KEY' },
-  { phase:1, name:'זהות מותג (שם, לוגו, שפה)',       start:'2026-04-05', end:'2026-04-18', tag:'design', tagLabel:'DESIGN' },
-  { phase:1, name:'תסריטי שיחה – dialogue flows',    start:'2026-04-08', end:'2026-04-15', tag:'key',    tagLabel:'KEY' },
-  { phase:1, name:'הכנת תוכן – destinations DB',     start:'2026-04-08', end:'2026-04-20', tag:'dev',    tagLabel:'CONTENT' },
-  { phase:2, name:'Style guide + design system',     start:'2026-04-12', end:'2026-04-28', tag:'design', tagLabel:'DESIGN' },
-  { phase:2, name:'Wireframes + UI prototypes',      start:'2026-04-22', end:'2026-05-10', tag:'design', tagLabel:'DESIGN' },
-  { phase:2, name:'עיצוב אווטאר / דמות',             start:'2026-04-14', end:'2026-05-01', tag:'design', tagLabel:'DESIGN' },
-  { phase:2, name:'קונספט מרחב תצוגה + גלובוס',     start:'2026-05-01', end:'2026-05-20', tag:'key',    tagLabel:'KEY' },
-  { phase:2, name:'קונספט פוסטרים ומיצבים',          start:'2026-05-10', end:'2026-05-25', tag:'design', tagLabel:'DESIGN' },
-  { phase:3, name:'Core infrastructure + env',       start:'2026-05-01', end:'2026-05-15', tag:'dev',    tagLabel:'DEV' },
-  { phase:3, name:'API integrations (OpenAI, Maps, ElevenLabs)', start:'2026-05-10', end:'2026-05-28', tag:'dev', tagLabel:'DEV' },
-  { phase:3, name:'AGT-01: Preference Profiling',    start:'2026-05-22', end:'2026-06-05', tag:'impl',   tagLabel:'IMPL' },
-  { phase:3, name:'AGT-02: Itinerary Creation',      start:'2026-06-01', end:'2026-06-18', tag:'impl',   tagLabel:'IMPL' },
-  { phase:3, name:'AGT-06: Language & Culture',      start:'2026-06-12', end:'2026-06-26', tag:'impl',   tagLabel:'IMPL' },
-  { phase:3, name:'Frontend – Exhibition Web App',   start:'2026-05-28', end:'2026-07-05', tag:'dev',    tagLabel:'DEV' },
-  { phase:3, name:'Voice interface (STT + TTS)',     start:'2026-06-20', end:'2026-07-05', tag:'dev',    tagLabel:'DEV' },
-  { phase:4, name:'System integration & QA',         start:'2026-07-01', end:'2026-07-12', tag:'dev',    tagLabel:'QA' },
-  { phase:4, name:'Pilot testing (5 users)',          start:'2026-07-10', end:'2026-07-20', tag:'key',    tagLabel:'KEY' },
-  { phase:4, name:'Bug fixes + refinement',           start:'2026-07-15', end:'2026-07-28', tag:'dev',    tagLabel:'FIX' },
-  { phase:4, name:'Stress test + contingency plan',  start:'2026-07-24', end:'2026-07-31', tag:'key',    tagLabel:'KEY' },
-  { phase:4, name:'תיעוד אקדמי (מתמשך)',             start:'2026-06-15', end:'2026-08-03', tag:'design', tagLabel:'DOCS' },
-  { phase:5, name:'ייצור פוסטרים + חומרי הדפסה',    start:'2026-08-01', end:'2026-08-05', tag:'design', tagLabel:'PRINT' },
-  { phase:5, name:'הרכבת חומרה + בדיקות',            start:'2026-08-01', end:'2026-08-04', tag:'dev',    tagLabel:'HW' },
-  { phase:5, name:'📌 הגשת הפרויקט',                 start:'2026-08-04', end:'2026-08-04', tag:'milestone', tagLabel:'SUBMIT' },
-  { phase:5, name:'Dry run מלא',                     start:'2026-08-03', end:'2026-08-05', tag:'key',    tagLabel:'KEY' },
-  { phase:6, name:'הקמת התערוכה',                    start:'2026-08-05', end:'2026-08-06', tag:'key',    tagLabel:'SETUP' },
-  { phase:6, name:'ימי תערוכה 6–19 אוגוסט',         start:'2026-08-06', end:'2026-08-19', tag:'impl',   tagLabel:'LIVE' },
-  { phase:6, name:'תיעוד וצילום',                    start:'2026-08-06', end:'2026-08-19', tag:'design', tagLabel:'DOCS' },
-  { phase:7, name:'פירוק המיצב + איסוף ציוד',        start:'2026-08-20', end:'2026-08-20', tag:'teardown', tagLabel:'TEARDOWN' },
-];
-
-const MONTHS = [
-  { name:'אפריל', start:'2026-04-01', days:30 },
-  { name:'מאי',   start:'2026-05-01', days:31 },
-  { name:'יוני',  start:'2026-06-01', days:30 },
-  { name:'יולי',  start:'2026-07-01', days:31 },
-  { name:'אוגוסט',start:'2026-08-01', days:20 },
-];
-
-const TAG_COLORS = {
-  impl:      { bg:'rgba(45,170,106,.18)',  border:'rgba(45,170,106,.35)', text:'#2DAA6A' },
-  design:    { bg:'rgba(139,92,246,.18)', border:'rgba(139,92,246,.35)', text:'#8B5CF6' },
-  dev:       { bg:'rgba(42,191,176,.18)', border:'rgba(42,191,176,.35)', text:'#2ABFB0' },
-  key:       { bg:'rgba(200,164,74,.22)', border:'rgba(200,164,74,.4)',  text:'#C8A44A' },
-  milestone: { bg:'rgba(255,80,80,.2)',   border:'rgba(255,80,80,.4)',   text:'#FF6060' },
-  teardown:  { bg:'rgba(224,82,82,.2)',   border:'rgba(224,82,82,.4)',   text:'#E05252' },
+const PHASES = {
+  1:{color:'#3B82B6',bg:'rgba(59,130,182,0.08)'},
+  2:{color:'#8B5CF6',bg:'rgba(139,92,246,0.08)'},
+  3:{color:'#2ABFB0',bg:'rgba(42,191,176,0.08)'},
+  4:{color:'#F59E0B',bg:'rgba(245,158,11,0.08)'},
+  5:{color:'#C8A44A',bg:'rgba(200,164,74,0.10)'},
+  6:{color:'#2DAA6A',bg:'rgba(45,170,106,0.08)'},
+  7:{color:'#E05252',bg:'rgba(224,82,82,0.08)'},
 };
 
-function dayOffset(d) { return (new Date(d) - START) / 86400000; }
-function pct(d) { return (d / TOTAL_DAYS * 100).toFixed(3) + '%'; }
+const TAG_COLORS = {
+  KEY:'#C8A44A', DESIGN:'#8B5CF6', DEV:'#2ABFB0', IMPL:'#2DAA6A',
+  CONTENT:'#3B82B6', QA:'#F59E0B', FIX:'#F59E0B', DOCS:'#8B5CF6',
+  PRINT:'#8B5CF6', HW:'#2ABFB0', SUBMIT:'#E05252', SETUP:'#2DAA6A',
+  LIVE:'#2DAA6A', TEARDOWN:'#E05252',
+};
 
-// Months header
-const monthsEl = document.getElementById('tl-months');
-MONTHS.forEach(m => {
-  const w = m.days / TOTAL_DAYS * 100;
-  const cell = document.createElement('div');
-  cell.className = 'month-cell';
-  cell.style.cssText = `width:${w.toFixed(2)}%;`;
-  cell.innerHTML = `<span>${m.name}</span>`;
-  monthsEl.appendChild(cell);
-});
+const MONTHS = [
+  {name:'אפריל', days:30},{name:'מאי', days:31},
+  {name:'יוני',  days:30},{name:'יולי', days:31},
+  {name:'אוגוסט',days:20},
+];
 
-const body = document.getElementById('gantt-body');
+const ROWS = [
+  // Phase 1
+  {type:'phase', phase:1, label:'Phase 1 — Foundation'},
+  {type:'task', phase:1, name:'אפיון מפורט + UX flows',        s:'2026-04-01',e:'2026-04-12',tag:'KEY'},
+  {type:'task', phase:1, name:'זהות מותג (שם, לוגו, שפה)',     s:'2026-04-05',e:'2026-04-18',tag:'DESIGN'},
+  {type:'task', phase:1, name:'תסריטי שיחה — dialogue flows',  s:'2026-04-08',e:'2026-04-15',tag:'KEY'},
+  {type:'task', phase:1, name:'הכנת תוכן — destinations DB',   s:'2026-04-08',e:'2026-04-20',tag:'CONTENT'},
+  // Phase 2
+  {type:'phase', phase:2, label:'Phase 2 — Design'},
+  {type:'task', phase:2, name:'Style guide + design system',   s:'2026-04-12',e:'2026-04-28',tag:'DESIGN'},
+  {type:'task', phase:2, name:'Wireframes + UI prototypes',    s:'2026-04-22',e:'2026-05-10',tag:'DESIGN'},
+  {type:'task', phase:2, name:'עיצוב אווטאר / דמות',           s:'2026-04-14',e:'2026-05-01',tag:'DESIGN'},
+  {type:'task', phase:2, name:'קונספט מרחב + גלובוס',          s:'2026-05-01',e:'2026-05-20',tag:'KEY'},
+  {type:'task', phase:2, name:'קונספט פוסטרים ומיצבים',        s:'2026-05-10',e:'2026-05-25',tag:'DESIGN'},
+  // Phase 3
+  {type:'phase', phase:3, label:'Phase 3 — Development'},
+  {type:'task', phase:3, name:'Core infrastructure + env',     s:'2026-05-01',e:'2026-05-15',tag:'DEV'},
+  {type:'task', phase:3, name:'API integrations (OpenAI, Maps, ElevenLabs)',s:'2026-05-10',e:'2026-05-28',tag:'DEV'},
+  {type:'task', phase:3, name:'AGT-01: Preference Profiling',  s:'2026-05-22',e:'2026-06-05',tag:'IMPL'},
+  {type:'task', phase:3, name:'AGT-02: Itinerary Creation',    s:'2026-06-01',e:'2026-06-18',tag:'IMPL'},
+  {type:'task', phase:3, name:'AGT-06: Language & Culture',    s:'2026-06-12',e:'2026-06-26',tag:'IMPL'},
+  {type:'task', phase:3, name:'Frontend — Exhibition Web App', s:'2026-05-28',e:'2026-07-05',tag:'DEV'},
+  {type:'task', phase:3, name:'Voice interface (STT + TTS)',   s:'2026-06-20',e:'2026-07-05',tag:'DEV'},
+  // Phase 4
+  {type:'phase', phase:4, label:'Phase 4 — Testing'},
+  {type:'task', phase:4, name:'System integration & QA',       s:'2026-07-01',e:'2026-07-12',tag:'QA'},
+  {type:'task', phase:4, name:'Pilot testing (5 users)',        s:'2026-07-10',e:'2026-07-20',tag:'KEY'},
+  {type:'task', phase:4, name:'Bug fixes + refinement',         s:'2026-07-15',e:'2026-07-28',tag:'FIX'},
+  {type:'task', phase:4, name:'Stress test + contingency',     s:'2026-07-24',e:'2026-07-31',tag:'KEY'},
+  {type:'task', phase:4, name:'תיעוד אקדמי (מתמשך)',           s:'2026-06-15',e:'2026-08-03',tag:'DOCS'},
+  // Phase 5
+  {type:'phase', phase:5, label:'Phase 5 — Production'},
+  {type:'task', phase:5, name:'ייצור פוסטרים + הדפסה',         s:'2026-08-01',e:'2026-08-05',tag:'PRINT'},
+  {type:'task', phase:5, name:'הרכבת חומרה + בדיקות',          s:'2026-08-01',e:'2026-08-04',tag:'HW'},
+  {type:'task', phase:5, name:'📌 הגשת הפרויקט',               s:'2026-08-04',e:'2026-08-04',tag:'SUBMIT', milestone:true},
+  {type:'task', phase:5, name:'Dry run מלא',                   s:'2026-08-03',e:'2026-08-05',tag:'KEY'},
+  // Phase 6
+  {type:'phase', phase:6, label:'Phase 6 — Exhibition'},
+  {type:'task', phase:6, name:'הקמת התערוכה',                  s:'2026-08-05',e:'2026-08-06',tag:'SETUP'},
+  {type:'task', phase:6, name:'ימי תערוכה 6–19 אוגוסט',       s:'2026-08-06',e:'2026-08-19',tag:'LIVE'},
+  {type:'task', phase:6, name:'תיעוד וצילום',                  s:'2026-08-06',e:'2026-08-19',tag:'DOCS'},
+  // Phase 7
+  {type:'phase', phase:7, label:'Phase 7 — Teardown'},
+  {type:'task', phase:7, name:'פירוק המיצב + איסוף ציוד',     s:'2026-08-20',e:'2026-08-20',tag:'TEARDOWN'},
+];
 
-// Grid lines
-MONTHS.forEach(m => {
-  const off = dayOffset(m.start);
-  if (off <= 0) return;
-  const line = document.createElement('div');
-  line.style.cssText = `position:absolute;left:calc(280px + ${pct(off)});top:0;bottom:0;width:1px;background:rgba(255,255,255,0.04);pointer-events:none;z-index:0;`;
-  body.appendChild(line);
-});
-
-// Submission deadline line (Aug 4)
-const subOff = dayOffset('2026-08-04');
-const subLine = document.createElement('div');
-subLine.style.cssText = `position:absolute;left:calc(280px + ${pct(subOff)});top:0;bottom:0;width:1.5px;background:rgba(255,80,80,0.5);z-index:10;pointer-events:none;`;
-subLine.innerHTML = `<div style="position:absolute;top:6px;font-size:9px;color:rgba(255,110,110,.85);letter-spacing:1px;transform:translateX(-50%);white-space:nowrap;background:#07091A;padding:0 3px">הגשה</div>`;
-body.appendChild(subLine);
-
-// Exhibition start line (Aug 6)
-const exOff = dayOffset('2026-08-06');
-const exLine = document.createElement('div');
-exLine.style.cssText = `position:absolute;left:calc(280px + ${pct(exOff)});top:0;bottom:0;width:1.5px;background:rgba(45,170,106,0.5);z-index:10;pointer-events:none;`;
-exLine.innerHTML = `<div style="position:absolute;top:20px;font-size:9px;color:rgba(45,200,106,.85);letter-spacing:1px;transform:translateX(-50%);white-space:nowrap;background:#07091A;padding:0 3px">תערוכה</div>`;
-body.appendChild(exLine);
-
-// Today line
-const todayOff = (TODAY - START) / 86400000;
-if (todayOff >= 0) {
-  const tl = document.createElement('div');
-  tl.style.cssText = `position:absolute;left:calc(280px + ${pct(todayOff)});top:0;bottom:0;width:1.5px;background:rgba(100,150,255,0.4);z-index:10;pointer-events:none;`;
-  tl.innerHTML = `<div style="position:absolute;top:34px;font-size:9px;color:rgba(130,170,255,.8);letter-spacing:1px;transform:translateX(-50%);white-space:nowrap;background:#07091A;padding:0 3px">today</div>`;
-  body.appendChild(tl);
+function dayOff(d){ return (new Date(d) - START) / 86400000; }
+function pct(d)   { return (d / TOTAL_DAYS * 100).toFixed(3) + '%'; }
+function fmtDate(s){
+  const d = new Date(s);
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
 }
 
-// Build rows
-let currentPhase = 0;
-TASKS.forEach(task => {
-  if (task.phase !== currentPhase) {
-    currentPhase = task.phase;
-    const ph = PHASES[currentPhase - 1];
-    const phOff = dayOffset(ph.start);
-    const phLen = (new Date(ph.end) - new Date(ph.start)) / 86400000 || 1;
-    const phRow = document.createElement('div');
-    phRow.style.cssText = 'display:flex;align-items:center;min-height:38px;border-bottom:1px solid rgba(255,255,255,0.05);margin-top:4px;';
-    phRow.innerHTML = `
-      <div style="width:280px;flex-shrink:0;padding:0 16px;display:flex;align-items:center;gap:8px;">
-        <div style="width:8px;height:8px;border-radius:50%;background:${ph.color};flex-shrink:0"></div>
-        <span style="font-size:12px;font-weight:500;color:${ph.color};letter-spacing:.3px">${ph.name}</span>
-      </div>
-      <div style="flex:1;position:relative;height:38px;">
-        <div style="position:absolute;left:${pct(phOff)};width:${pct(phLen)};height:8px;top:50%;transform:translateY(-50%);border-radius:4px;background:${ph.color};opacity:.18;border:1px solid ${ph.color}44;"></div>
-      </div>`;
-    body.appendChild(phRow);
+const tbl = document.getElementById('gantt');
+
+// ── Month header row ──────────────────────────────────────────────────────
+const hdrTr = tbl.insertRow();
+hdrTr.style.cssText = 'background:#08091F;';
+
+const thLabel = document.createElement('th');
+thLabel.style.cssText = 'width:230px;padding:8px 14px;text-align:right;font-size:11px;color:#6B7280;letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid rgba(200,164,74,0.18);font-weight:400;';
+thLabel.textContent = 'משימה';
+hdrTr.appendChild(thLabel);
+
+const thDates = document.createElement('th');
+thDates.style.cssText = 'width:130px;padding:8px 6px;text-align:center;font-size:11px;color:#6B7280;letter-spacing:1px;border-bottom:1px solid rgba(200,164,74,0.18);font-weight:400;';
+thDates.textContent = 'תאריכים';
+hdrTr.appendChild(thDates);
+
+const thChart = document.createElement('th');
+thChart.style.cssText = 'padding:0;border-bottom:1px solid rgba(200,164,74,0.18);';
+const monthsDiv = document.createElement('div');
+monthsDiv.style.cssText = 'display:flex;';
+let cumDays = 0;
+MONTHS.forEach(m => {
+  const slot = document.createElement('div');
+  slot.style.cssText = `flex:${m.days};text-align:center;padding:8px 4px;font-size:11px;color:#8A8070;letter-spacing:1px;border-right:1px solid rgba(255,255,255,0.07);`;
+  slot.textContent = m.name;
+  monthsDiv.appendChild(slot);
+  cumDays += m.days;
+});
+thChart.appendChild(monthsDiv);
+hdrTr.appendChild(thChart);
+
+// ── Data rows ─────────────────────────────────────────────────────────────
+ROWS.forEach(row => {
+  const ph = PHASES[row.phase];
+  const tr = tbl.insertRow();
+
+  if (row.type === 'phase') {
+    tr.style.cssText = `background:${ph.bg};`;
+    const td = tr.insertCell();
+    td.colSpan = 3;
+    td.style.cssText = 'padding:9px 14px;border-bottom:1px solid rgba(255,255,255,0.04);border-top:1px solid rgba(255,255,255,0.06);';
+    td.innerHTML = `<div style="display:flex;align-items:center;gap:8px;direction:ltr;">
+      <div style="width:8px;height:8px;border-radius:50%;background:${ph.color};flex-shrink:0;"></div>
+      <span style="font-size:12px;font-weight:500;color:${ph.color};letter-spacing:.3px">${row.label}</span>
+    </div>`;
+    return;
   }
 
-  const tc = TAG_COLORS[task.tag] || TAG_COLORS.dev;
-  const ph = PHASES[task.phase - 1];
-  const off = Math.max(0, dayOffset(task.start));
-  const rawLen = (new Date(task.end) - new Date(task.start)) / 86400000;
+  tr.style.cssText = 'border-bottom:1px solid rgba(255,255,255,0.025);';
+  tr.onmouseenter = ()=>tr.style.background='rgba(255,255,255,0.02)';
+  tr.onmouseleave = ()=>tr.style.background='';
+
+  // Task label cell (RTL text, LTR table)
+  const tdLabel = tr.insertCell();
+  tdLabel.style.cssText = 'width:230px;padding:0;vertical-align:middle;';
+  const tc = TAG_COLORS[row.tag] || '#8A8070';
+  tdLabel.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 14px;gap:6px;direction:rtl;">
+      <span style="font-size:12px;color:#9A9080;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px;" title="${row.name}">${row.name}</span>
+      <span style="font-size:9px;padding:2px 5px;border-radius:3px;background:${tc}22;border:1px solid ${tc}55;color:${tc};letter-spacing:.5px;flex-shrink:0">${row.tag}</span>
+    </div>`;
+
+  // Dates cell
+  const tdDates = tr.insertCell();
+  tdDates.style.cssText = 'width:130px;text-align:center;padding:0 6px;vertical-align:middle;';
+  tdDates.innerHTML = `<span style="font-size:10px;color:#6B7280;direction:ltr;display:inline-block;white-space:nowrap;">${fmtDate(row.s)} – ${fmtDate(row.e)}</span>`;
+
+  // Bar cell
+  const tdBar = tr.insertCell();
+  tdBar.style.cssText = 'position:relative;padding:0;vertical-align:middle;';
+
+  const inner = document.createElement('div');
+  inner.style.cssText = 'position:relative;height:32px;';
+
+  // Grid lines at month boundaries
+  let gDays = 0;
+  MONTHS.forEach((m,i) => {
+    if(i>0){
+      const gl = document.createElement('div');
+      gl.style.cssText = `position:absolute;left:${pct(gDays)};top:0;bottom:0;width:1px;background:rgba(255,255,255,0.05);pointer-events:none;`;
+      inner.appendChild(gl);
+    }
+    gDays += m.days;
+  });
+
+  // Submission deadline line
+  const subOff = dayOff('2026-08-04');
+  const subLine = document.createElement('div');
+  subLine.style.cssText = `position:absolute;left:${pct(subOff)};top:0;bottom:0;width:1.5px;background:rgba(224,82,82,0.45);z-index:5;pointer-events:none;`;
+  inner.appendChild(subLine);
+
+  // Exhibition start line
+  const exOff = dayOff('2026-08-06');
+  const exLine = document.createElement('div');
+  exLine.style.cssText = `position:absolute;left:${pct(exOff)};top:0;bottom:0;width:1.5px;background:rgba(45,170,106,0.4);z-index:5;pointer-events:none;`;
+  inner.appendChild(exLine);
+
+  // Bar or milestone
+  const off = Math.max(0, dayOff(row.s));
+  const rawLen = (new Date(row.e) - new Date(row.s)) / 86400000;
   const len = Math.max(rawLen, 1);
 
-  const isMilestone = task.tag === 'milestone';
+  if(row.milestone) {
+    const diamond = document.createElement('div');
+    diamond.style.cssText = `position:absolute;left:calc(${pct(off)} - 7px);top:50%;transform:translateY(-50%) rotate(45deg);width:13px;height:13px;background:#E05252;border-radius:2px;z-index:4;`;
+    inner.appendChild(diamond);
+  } else {
+    const bar = document.createElement('div');
+    bar.style.cssText = `position:absolute;left:${pct(off)};width:${pct(len)};height:14px;top:50%;transform:translateY(-50%);border-radius:7px;background:linear-gradient(90deg,${ph.color}60,${ph.color}28);border:1px solid ${ph.color}44;display:flex;align-items:center;padding:0 7px;overflow:hidden;`;
+    bar.innerHTML = `<span style="font-size:9px;color:rgba(255,255,255,0.5);white-space:nowrap;overflow:hidden;direction:rtl;">${row.name}</span>`;
+    inner.appendChild(bar);
+  }
 
-  const row = document.createElement('div');
-  row.style.cssText = 'display:flex;align-items:center;min-height:32px;border-bottom:1px solid rgba(255,255,255,0.025);transition:background .15s;';
-  row.onmouseenter = () => row.style.background = 'rgba(255,255,255,0.02)';
-  row.onmouseleave = () => row.style.background = 'transparent';
-
-  const barHtml = isMilestone
-    ? `<div style="position:absolute;left:calc(${pct(off)} - 8px);top:50%;transform:translateY(-50%) rotate(45deg);width:14px;height:14px;background:#FF6060;opacity:.85;border-radius:2px;"></div>`
-    : `<div style="position:absolute;left:${pct(off)};width:${pct(len)};height:14px;top:50%;transform:translateY(-50%);border-radius:7px;background:linear-gradient(90deg,${ph.color}65,${ph.color}30);border:1px solid ${ph.color}44;display:flex;align-items:center;padding:0 7px;overflow:hidden;">
-         <span style="font-size:9px;white-space:nowrap;color:rgba(255,255,255,.55);overflow:hidden;">${task.name}</span>
-       </div>`;
-
-  row.innerHTML = `
-    <div style="width:280px;flex-shrink:0;padding:0 16px 0 34px;display:flex;align-items:center;gap:8px;">
-      <span style="font-size:12px;color:#8A8070;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${task.name}">${task.name}</span>
-      <span style="font-size:9px;padding:2px 5px;border-radius:3px;background:${tc.bg};border:1px solid ${tc.border};color:${tc.text};letter-spacing:.5px;flex-shrink:0">${task.tagLabel}</span>
-    </div>
-    <div style="flex:1;position:relative;height:32px;">${barHtml}</div>`;
-  body.appendChild(row);
+  tdBar.appendChild(inner);
 });
 </script>
 </body>
