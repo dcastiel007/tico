@@ -433,7 +433,10 @@ function applyLang(lang, save=true) {
   document.documentElement.lang = cfg.htmlLang;
   document.documentElement.dir  = cfg.dir;
   document.title = cfg.title;
-  document.querySelectorAll('[data-he][data-en]').forEach(el => { el.textContent = el.dataset[lang]; });
+  document.querySelectorAll('[data-he][data-en]').forEach(el => {
+    if(el.dataset.html) el.innerHTML = el.dataset[lang];
+    else el.textContent = el.dataset[lang];
+  });
   const backEl = document.getElementById('navBack');
   if(backEl) backEl.textContent = lang==='he' ? '← חזרה לדף הבית' : '← Back to Index';
   document.getElementById('langFlag').textContent  = cfg.flag;
