@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl" data-theme="light">
+<html lang="he" dir="rtl" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -53,8 +53,7 @@
 
 * { margin:0; padding:0; box-sizing:border-box; }
 html, body { width:100%; height:100%; background:var(--bg); color:var(--text); font-family:'Heebo','DM Sans',sans-serif; overflow:hidden; transition:background .25s,color .25s; }
-html[lang='en'] body { direction:ltr; font-family:'DM Sans',sans-serif; }
-html[lang='he'] body { direction:rtl; }
+/* tco-main uses fixed layout — direction managed per-element, not on body */
 
 /* ── LAYOUT ────────────────────────────────────────────────────────────── */
 .shell { display:grid; grid-template-rows:56px 1fr 48px; height:100vh; width:100vw; }
@@ -90,14 +89,8 @@ html[lang='he'] body { direction:rtl; }
 #themeBtn.is-system::after{content:'';position:absolute;bottom:1px;right:1px;width:6px;height:6px;border-radius:50%;background:var(--gold);border:1px solid var(--bg);}
 
 /* Theme switcher */
-.theme-switcher { display:flex; background:var(--card); border:1px solid var(--border2); border-radius:20px; overflow:hidden; }
-.theme-btn {
-  padding:5px 10px; font-size:11px; cursor:pointer; color:var(--muted);
-  transition:all .18s; border:none; background:transparent; font-family:'DM Sans',sans-serif;
-  display:flex; align-items:center; gap:4px;
-}
-.theme-btn.active { background:var(--gold); color:#FFF; }
-.theme-btn:hover:not(.active) { color:var(--text); }
+/* theme/lang buttons in header */
+#themeBtn.is-system::after { content:''; position:absolute; bottom:1px; right:1px; width:6px; height:6px; border-radius:50%; background:var(--gold); border:1px solid var(--bg); }
 
 /* ── LEFT PANEL — CONVERSATION ─────────────────────────────────────────── */
 .panel-left { background:var(--surface); border-right:1px solid var(--border2); display:flex; flex-direction:column; overflow:hidden; transition:background .25s; }
@@ -256,13 +249,8 @@ html[lang='he'] body { direction:rtl; }
         <div class="stage-dot" style="background:#3B82B6"></div>
         <span>שלב 1 — תכנון</span>
       </div>
-      <!-- THEME SWITCHER -->
-      <div class="theme-switcher" id="theme-switcher">
-        <button class="theme-btn active" data-mode="light" onclick="setTheme('light')">☀️ Light</button>
-        <button class="theme-btn" data-mode="dark"  onclick="setTheme('dark')">🌙 Dark</button>
-        <button class="theme-btn" data-mode="system" onclick="setTheme('system')">💻 System</button>
-      </div>
-      <div class="hdr-icon" style="color:var(--gold)">T</div>
+      <button id="langBtn" style="height:28px;padding:0 10px;border-radius:14px;border:1px solid var(--border2);background:var(--card);cursor:pointer;display:flex;align-items:center;gap:4px;color:var(--muted);font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .2s;white-space:nowrap;"><span id="langFlag">🇺🇸</span><span id="langLabel">EN</span></button>
+      <button id="themeBtn" class="hdr-icon" style="position:relative;font-size:14px;cursor:pointer;border:none;background:var(--card);"><span id="themeIcon">🌙</span></button>
     </div>
   </header>
 
@@ -456,7 +444,7 @@ let currentLang = localStorage.getItem('tco-lang') || 'he';
 function applyLang(lang, save=true) {
   const cfg = langConfig[lang];
   document.documentElement.lang = cfg.htmlLang;
-  document.documentElement.dir  = cfg.dir;
+  // tco-main: fixed layout, don't flip document direction
   document.title = cfg.title;
   document.querySelectorAll('[data-he][data-en]').forEach(el => {
     if(el.dataset.html) el.innerHTML = el.dataset[lang];
@@ -477,7 +465,7 @@ applyLang(currentLang, false);
 const THEMES=['system','light','dark'];
 const ICONS={system:'💻',light:'☀️',dark:'🌙'};
 const sysDark=window.matchMedia('(prefers-color-scheme: dark)');
-let currentTheme=localStorage.getItem('tco-theme')||'system';
+let currentTheme=localStorage.getItem('tco-theme')||'dark';
 function resolveTheme(t){return t==='system'?(sysDark.matches?'dark':'light'):t;}
 function applyTheme(t,save=true){
   currentTheme=t;
