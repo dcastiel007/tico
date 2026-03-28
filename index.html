@@ -218,31 +218,6 @@ html[lang="en"] .hero-meta-item { text-align:left; }
   font-size:21px; color:var(--text-muted);
 }
 
-/* ═══ STATS STRIP ═════════════════════════════════════════════ */
-.stats-strip {
-  background:var(--surface);
-  border-top:1px solid var(--border); border-bottom:1px solid var(--border);
-  padding:32px 40px;
-}
-.stats-inner {
-  max-width:1200px; margin:0 auto;
-  display:grid; grid-template-columns:repeat(4,1fr);
-}
-.stat-item {
-  text-align:center; padding:16px;
-  border-right:1px solid var(--border); transition:background .2s;
-}
-.stat-item:first-child { border-left:1px solid var(--border); }
-.stat-item:hover { background:var(--gold-pale); }
-.stat-num {
-  font-family:'Cormorant Garamond',serif;
-  font-size:48px; font-weight:300; color:var(--gold); line-height:1; margin-bottom:6px;
-}
-.stat-label {
-  font-size:13px; letter-spacing:1.5px; text-transform:uppercase;
-  color:var(--text-dim); font-family:'DM Sans',sans-serif;
-}
-
 /* ═══ SECTIONS ════════════════════════════════════════════════ */
 .section { max-width:1200px; margin:0 auto; padding:64px 40px; }
 
@@ -426,10 +401,6 @@ html[lang="he"] .timeline-date { text-align:right; }
   .hero { padding:80px 24px 80px; }
 }
 
-  .stats-strip { padding:24px 20px; }
-  .stats-inner { grid-template-columns:repeat(2,1fr); }
-  .stat-item:nth-child(2) { border-right:none; }
-  .stat-item:nth-child(3) { border-left:1px solid var(--border); }
   .pages-section { padding:40px 24px; }
   .pages-grid { grid-template-columns:1fr; }
   .section { padding:40px 24px; }
@@ -508,16 +479,6 @@ html[lang="he"] .timeline-date { text-align:right; }
   </div>
 
 </section>
-
-<!-- STATS -->
-<div class="stats-strip">
-  <div class="stats-inner">
-    <div class="stat-item"><div class="stat-num">11</div><div class="stat-label" data-he="סוכני AI" data-en="AI Agents">סוכני AI</div></div>
-    <div class="stat-item"><div class="stat-num">4</div><div class="stat-label" data-he="שלבי מסע" data-en="Travel Stages">שלבי מסע</div></div>
-    <div class="stat-item"><div class="stat-num">3</div><div class="stat-label" data-he="סוכנים ממומשים" data-en="Implemented Agents">סוכנים ממומשים</div></div>
-    <div class="stat-item"><div class="stat-num">1</div><div class="stat-label" data-he="מלווה אדפטיבי" data-en="Adaptive Companion">מלווה אדפטיבי</div></div>
-  </div>
-</div>
 
 <!-- PAGES -->
 <div class="pages-section">
@@ -722,7 +683,7 @@ html[lang="he"] .timeline-date { text-align:right; }
   <div class="footer-inner">
     <div class="footer-logo">t.Co</div>
     <div class="footer-text" data-he="פרויקט גמר · עיצוב לסביבות טכנולוגיות · HIT 2025–2026" data-en="Master's Thesis · Design for Technological Environments · HIT 2025–2026">פרויקט גמר · עיצוב לסביבות טכנולוגיות · HIT 2025–2026</div>
-    <div class="footer-badge" data-he="סטודנט · דייויד קסטיאל" data-en="Student · David Castiel">סטודנט · דייויד קסטיאל</div>
+    <div class="footer-badge" data-he="סטודנט · דוד" data-en="Student · David">סטודנט · דוד</div>
   </div>
 </footer>
 
