@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>t.Co — Project Gantt Chart</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0e10;
+    --surface: #18181c;
+    --surface2: #222228;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text-primary: #f0efe8;
+    --text-secondary: #9998a0;
+    --text-muted: #55545e;
+    --accent: #7c6fff;
+
+    --c-key:     #7c6fff;
+    --c-design:  #22c9a0;
+    --c-dev:     #4ba3f5;
+    --c-content: #e8a535;
+    --c-qa:      #7ec94c;
+    --c-print:   #f07040;
+    --c-today:   #f55;
+
+    --bar-h: 16px;
+    --row-h: 36px;
+  }
+
+  body {
+    font-family: 'Heebo', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    direction: rtl;
+  }
+
+  .page { max-width: 1200px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+
+  /* ── Header ── */
+  .page-header { margin-bottom: 2.5rem; border-bottom: 0.5px solid var(--border2); padding-bottom: 1.5rem; }
+  .page-header h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text-primary);
+  }
+  .page-header h1 span { color: var(--accent); }
+  .page-header p { font-size: 13px; color: var(--text-secondary); margin-top: 6px; font-weight: 300; }
+  .meta-row { display: flex; gap: 1.5rem; margin-top: 1rem; flex-wrap: wrap; }
+  .meta-chip {
+    font-size: 11px; font-family: 'Space Mono', monospace;
+    color: var(--text-muted);
+    border: 0.5px solid var(--border2);
+    border-radius: 4px;
+    padding: 3px 8px;
+    letter-spacing: 0.3px;
+  }
+  .meta-chip span { color: var(--text-secondary); }
+
+  /* ── Legend ── */
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 1.5rem; align-items: center; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-secondary); cursor: pointer; transition: opacity 0.15s; user-select: none; }
+  .legend-item:hover { opacity: 0.7; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* ── Controls ── */
+  .controls { display: flex; gap: 6px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .ctrl-btn {
+    font-family: 'Heebo', sans-serif;
+    font-size: 12px;
+    padding: 5px 14px;
+    border-radius: 4px;
+    border: 0.5px solid var(--border2);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 400;
+  }
+  .ctrl-btn:hover { background: var(--surface); color: var(--text-primary); }
+  .ctrl-btn.active {
+    background: var(--surface2);
+    color: var(--text-primary);
+    border-color: rgba(255,255,255,0.2);
+    font-weight: 500;
+  }
+
+  /* ── Gantt layout ── */
+  .gantt-scroll { width: 100%; overflow-x: auto; }
+  .gantt-inner { min-width: 820px; }
+
+  /* Month header */
+  .month-header {
+    display: grid;
+    margin-bottom: 8px;
+  }
+  .month-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    padding-bottom: 6px;
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  /* Phase header */
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0 6px;
+    border-top: 0.5px solid var(--border2);
+    margin-top: 4px;
+  }
+  .phase-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .phase-title { font-size: 12px; color: var(--text-secondary); font-weight: 400; }
+
+  /* Task row */
+  .task-row {
+    display: grid;
+    height: var(--row-h);
+    align-items: center;
+    border-bottom: 0.5px solid var(--border);
+    transition: background 0.1s;
+    position: relative;
+    cursor: pointer;
+  }
+  .task-row:hover { background: rgba(255,255,255,0.025); }
+
+  .task-num { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--text-muted); text-align: center; }
+  .task-name {
+    font-size: 12px;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-left: 12px;
+    font-weight: 400;
+  }
+  .task-dates {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    padding-right: 10px;
+  }
+
+  /* Bar area */
+  .bar-area { position: relative; height: 100%; }
+  .month-gridline {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 0.5px;
+    background: var(--border);
+    pointer-events: none;
+  }
+  .bar {
+    position: absolute;
+    height: var(--bar-h);
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 3px;
+    min-width: 4px;
+    transition: opacity 0.15s, transform 0.15s;
+    cursor: pointer;
+  }
+  .bar:hover { opacity: 0.85; transform: translateY(-50%) scaleY(1.15); }
+
+  /* Today line */
+  .today-marker {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 1.5px;
+    background: var(--c-today);
+    pointer-events: none;
+    z-index: 5;
+  }
+  .today-label {
+    position: absolute;
+    top: -18px;
+    transform: translateX(-50%);
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--c-today);
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+  }
+
+  /* Tooltip */
+  .tooltip {
+    position: fixed;
+    background: var(--surface2);
+    border: 0.5px solid var(--border2);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text-primary);
+    z-index: 1000;
+    pointer-events: none;
+    max-width: 260px;
+    display: none;
+    direction: rtl;
+    text-align: right;
+  }
+  .tooltip-name { font-weight: 500; font-size: 13px; margin-bottom: 6px; line-height: 1.3; }
+  .tooltip-row { color: var(--text-secondary); font-size: 11px; margin: 3px 0; font-family: 'Space Mono', monospace; }
+  .tooltip-note { color: var(--text-muted); font-size: 11px; margin-top: 6px; font-family: 'Heebo', sans-serif; line-height: 1.5; border-top: 0.5px solid var(--border2); padding-top: 6px; }
+  .tooltip-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-bottom: 4px;
+  }
+
+  /* Summary stats */
+  .stats { display: flex; gap: 12px; margin-bottom: 2rem; flex-wrap: wrap; }
+  .stat-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 16px;
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+  }
+  .stat-num { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+
+  /* Milestone markers */
+  .milestone {
+    position: absolute;
+    width: 10px; height: 10px;
+    background: var(--c-today);
+    transform: translateY(-50%) rotate(45deg);
+    top: 50%;
+    border-radius: 2px;
+    z-index: 4;
+  }
+
+  .no-tasks { color: var(--text-muted); font-size: 13px; padding: 2rem 0; text-align: center; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="page-header">
+    <h1>t<span>.</span>Co — Project Plan</h1>
+    <p>מערכת AI לליווי נסיעות אישי · תזה לתואר שני בעיצוב לסביבות טכנולוגיות</p>
+    <div class="meta-row">
+      <span class="meta-chip">David Castiel · <span>HIT</span></span>
+      <span class="meta-chip">הגשה: <span>4 אוג׳ 2026</span></span>
+      <span class="meta-chip">תערוכה: <span>6–19 אוג׳ 2026</span></span>
+      <span class="meta-chip">29 משימות · 7 פאזות</span>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card"><div class="stat-num">29</div><div class="stat-label">משימות</div></div>
+    <div class="stat-card"><div class="stat-num">7</div><div class="stat-label">פאזות</div></div>
+    <div class="stat-card"><div class="stat-num">141</div><div class="stat-label">ימי פרויקט</div></div>
+    <div class="stat-card"><div class="stat-num">~60</div><div class="stat-label">ימים לפני הגשה</div></div>
+  </div>
+
+  <div class="legend" id="legend">
+    <span class="legend-item" data-status="KEY"><span class="legend-dot" style="background:var(--c-key)"></span>KEY</span>
+    <span class="legend-item" data-status="DESIGN"><span class="legend-dot" style="background:var(--c-design)"></span>DESIGN</span>
+    <span class="legend-item" data-status="DEV"><span class="legend-dot" style="background:var(--c-dev)"></span>DEV / IMPL</span>
+    <span class="legend-item" data-status="CONTENT"><span class="legend-dot" style="background:var(--c-content)"></span>CONTENT</span>
+    <span class="legend-item" data-status="QA"><span class="legend-dot" style="background:var(--c-qa)"></span>QA / DOCS</span>
+    <span class="legend-item" data-status="PRINT"><span class="legend-dot" style="background:var(--c-print)"></span>PRINT / HW / SETUP</span>
+  </div>
+
+  <div class="controls" id="controls">
+    <button class="ctrl-btn active" data-filter="all">הכל</button>
+    <button class="ctrl-btn" data-filter="Phase 1">Phase 1 — Foundation</button>
+    <button class="ctrl-btn" data-filter="Phase 2">Phase 2 — Design</button>
+    <button class="ctrl-btn" data-filter="Phase 3">Phase 3 — Development</button>
+    <button class="ctrl-btn" data-filter="Phase 4">Phase 4 — Testing</button>
+    <button class="ctrl-btn" data-filter="Phase 5">Phase 5 — Production</button>
+    <button class="ctrl-btn" data-filter="Phase 6">Phase 6+ — Exhibition</button>
+  </div>
+
+  <div class="gantt-scroll">
+    <div class="gantt-inner" id="gantt"></div>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const TASKS = [
+  {num:1,phase:'Phase 1',phaseLabel:'Phase 1 — Foundation',name:'אפיון מפורט + UX flows',start:'2026-04-01',end:'2026-04-12',status:'KEY',note:'אפיון כולל user journeys, ארכיטקטורת מידע, flow diagrams'},
+  {num:2,phase:'Phase 1',phaseLabel:'Phase 1 — Foundation',name:'זהות מותג (שם, לוגו, שפה)',start:'2026-04-05',end:'2026-04-18',status:'DESIGN',note:'שם הפרויקט, פלטת צבעים, טיפוגרפיה, style guide'},
+  {num:3,phase:'Phase 1',phaseLabel:'Phase 1 — Foundation',name:'תסריטי שיחה — dialogue flows',start:'2026-04-08',end:'2026-04-15',status:'KEY',note:'כל שאלות ה-AI, edge cases, תשובות ל-100-200 מבקרים'},
+  {num:4,phase:'Phase 1',phaseLabel:'Phase 1 — Foundation',name:'הכנת תוכן — destinations DB',start:'2026-04-08',end:'2026-04-20',status:'CONTENT',note:'בסיס נתונים: יעדים, מסלולים, facts תרבותיים'},
+  {num:5,phase:'Phase 2',phaseLabel:'Phase 2 — Design',name:'Style guide + design system',start:'2026-04-12',end:'2026-04-28',status:'DESIGN',note:'קומפוננטות, spacing, typography, color tokens'},
+  {num:6,phase:'Phase 2',phaseLabel:'Phase 2 — Design',name:'Wireframes + UI prototypes',start:'2026-04-22',end:'2026-05-10',status:'DESIGN',note:'Figma mockups למסך הגדול + mobile fallback'},
+  {num:7,phase:'Phase 2',phaseLabel:'Phase 2 — Design',name:'עיצוב אווטאר / דמות',start:'2026-04-14',end:'2026-05-01',status:'DESIGN',note:'הדמות שמופיעה על המסך — AI Tico animated'},
+  {num:8,phase:'Phase 2',phaseLabel:'Phase 2 — Design',name:'קונספט מרחב תצוגה + גלובוס',start:'2026-05-01',end:'2026-05-20',status:'KEY',note:'Layout פיזי, גלובוס עם חיישנים, flow מבקרים'},
+  {num:9,phase:'Phase 2',phaseLabel:'Phase 2 — Design',name:'קונספט פוסטרים ומיצבים',start:'2026-05-10',end:'2026-05-25',status:'DESIGN',note:'פוסטרים A1, מיצבים פיזיים, חומרי הסבר'},
+  {num:10,phase:'Phase 3',phaseLabel:'Phase 3 — Development',name:'Core infrastructure + env',start:'2026-05-01',end:'2026-05-15',status:'DEV',note:'Cloud setup, DB, auth, CI/CD pipeline'},
+  {num:11,phase:'Phase 3',phaseLabel:'Phase 3 — Development',name:'API integrations',start:'2026-05-10',end:'2026-05-28',status:'DEV',note:'OpenAI GPT-4o, Google Maps, ElevenLabs TTS, Whisper STT'},
+  {num:12,phase:'Phase 3',phaseLabel:'Phase 3 — Development',name:'AGT-01: Preference Profiling',start:'2026-05-22',end:'2026-06-05',status:'DEV',note:'סוכן פרופיל משתמש — שאלות, inference, JSON output'},
+  {num:13,phase:'Phase 3',phaseLabel:'Phase 3 — Development',name:'AGT-02: Itinerary Creation',start:'2026-06-01',end:'2026-06-18',status:'DEV',note:'סוכן מסלולים — יום-יום, מפה, עלויות'},
+  {num:14,phase:'Phase 3',phaseLabel:'Phase 3 — Development',name:'AGT-06: Language & Culture',start:'2026-06-12',end:'2026-06-26',status:'DEV',note:'תרגום חי, etiquette, pronunciation'},
+  {num:15,phase:'Phase 3',phaseLabel:'Phase 3 — Development',name:'Frontend — Exhibition Web App',start:'2026-05-28',end:'2026-07-05',status:'DEV',note:'מסך מלא, אנימציות, מפה חיה, דיאגרמת סוכנים'},
+  {num:16,phase:'Phase 3',phaseLabel:'Phase 3 — Development',name:'Voice interface (STT + TTS)',start:'2026-06-20',end:'2026-07-05',status:'DEV',note:'קלט קולי + פלט קולי — הלב של חוויית התערוכה'},
+  {num:17,phase:'Phase 4',phaseLabel:'Phase 4 — Testing',name:'System integration & QA',start:'2026-07-01',end:'2026-07-12',status:'QA',note:'חיבור כל הסוכנים, end-to-end testing'},
+  {num:18,phase:'Phase 4',phaseLabel:'Phase 4 — Testing',name:'Pilot testing (5 users)',start:'2026-07-10',end:'2026-07-20',status:'KEY',note:'בדיקה עם משתמשים אמיתיים — לגלות הפתעות'},
+  {num:19,phase:'Phase 4',phaseLabel:'Phase 4 — Testing',name:'Bug fixes + refinement',start:'2026-07-15',end:'2026-07-28',status:'QA',note:'תיקונים בהתאם ל-pilot, UX polish'},
+  {num:20,phase:'Phase 4',phaseLabel:'Phase 4 — Testing',name:'Stress test + contingency',start:'2026-07-24',end:'2026-07-31',status:'KEY',note:'100+ משתמשים, אופליין backup, API fallbacks'},
+  {num:21,phase:'Phase 4',phaseLabel:'Phase 4 — Testing',name:'תיעוד אקדמי + ספר גמר',start:'2026-06-15',end:'2026-08-03',status:'QA',note:'כתיבת עבודת התזה לאורך כל הפרויקט'},
+  {num:22,phase:'Phase 5',phaseLabel:'Phase 5 — Production',name:'ייצור פוסטרים + הדפסה',start:'2026-08-01',end:'2026-08-05',status:'PRINT',note:'הדפסת פוסטרים, מיצגים, כרטיסי הסבר'},
+  {num:23,phase:'Phase 5',phaseLabel:'Phase 5 — Production',name:'הרכבת חומרה + בדיקות',start:'2026-08-01',end:'2026-08-04',status:'PRINT',note:'הרכבת מסכים, רמקולים, מיקרופונים, חיבורים'},
+  {num:24,phase:'Phase 5',phaseLabel:'Phase 5 — Production',name:'הגשת הפרויקט',start:'2026-08-04',end:'2026-08-04',status:'KEY',note:'Deadline הגשה — 4 אוגוסט 2026'},
+  {num:25,phase:'Phase 5',phaseLabel:'Phase 5 — Production',name:'Dry run מלא',start:'2026-08-03',end:'2026-08-05',status:'KEY',note:'ריצה מלאה של הדמו כמו ביום התערוכה'},
+  {num:26,phase:'Phase 6',phaseLabel:'Phase 6 — Exhibition',name:'הקמת התערוכה',start:'2026-08-05',end:'2026-08-06',status:'PRINT',note:'התקנת מסכים, חיבורים, בדיקה סופית במקום'},
+  {num:27,phase:'Phase 6',phaseLabel:'Phase 6 — Exhibition',name:'ימי תערוכה 6–19 אוגוסט',start:'2026-08-06',end:'2026-08-19',status:'KEY',note:'100–200 מבקרים, הפעלה יומית, תמיכה'},
+  {num:28,phase:'Phase 6',phaseLabel:'Phase 6 — Exhibition',name:'תיעוד וצילום',start:'2026-08-06',end:'2026-08-19',status:'QA',note:'צילום, סרטון, איסוף feedback מבקרים'},
+  {num:29,phase:'Phase 7',phaseLabel:'Phase 7 — Teardown',name:'פירוק המיצב + איסוף ציוד',start:'2026-08-20',end:'2026-08-20',status:'PRINT',note:'פירוק כל הציוד, ניקוי המרחב, תיעוד סיכום'}
+];
+
+const STATUS_COLOR = {
+  KEY:     '#7c6fff',
+  DESIGN:  '#22c9a0',
+  DEV:     '#4ba3f5',
+  IMPL:    '#4ba3f5',
+  CONTENT: '#e8a535',
+  QA:      '#7ec94c',
+  DOCS:    '#7ec94c',
+  FIX:     '#7ec94c',
+  PRINT:   '#f07040',
+  HW:      '#f07040',
+  SETUP:   '#f07040',
+  SUBMIT:  '#f55',
+  LIVE:    '#7c6fff'
+};
+
+const PHASE_COLOR = {
+  'Phase 1': '#7c6fff',
+  'Phase 2': '#22c9a0',
+  'Phase 3': '#4ba3f5',
+  'Phase 4': '#7ec94c',
+  'Phase 5': '#e8a535',
+  'Phase 6': '#f07040',
+  'Phase 7': '#9998a0'
+};
+
+const PROJECT_START = new Date('2026-04-01');
+const PROJECT_END   = new Date('2026-08-20');
+const TOTAL_DAYS    = (PROJECT_END - PROJECT_START) / 86400000;
+const TODAY         = new Date('2026-03-31');
+
+function dayOffset(dateStr) {
+  return (new Date(dateStr) - PROJECT_START) / 86400000;
+}
+function pct(dateStr) {
+  return Math.max(0, Math.min(100, dayOffset(dateStr) / TOTAL_DAYS * 100));
+}
+function pctWidth(start, end) {
+  const s = dayOffset(start), e = dayOffset(end) + 1;
+  return Math.max(0.3, (e - s) / TOTAL_DAYS * 100);
+}
+
+function getMonths() {
+  const months = [];
+  let cur = new Date(PROJECT_START);
+  while (cur <= PROJECT_END) {
+    months.push(new Date(cur));
+    cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
+  }
+  return months;
+}
+
+// RTL: bars go from RIGHT. In RTL layout, left=0 is the RIGHT side visually.
+// We want April on the right, August on the left.
+// So bar position: right% = pct(start), which in RTL layout means
+// the bar starts at pct(start) from the right edge.
+// Simplest approach: use `right` in CSS instead of `left`.
+
+function pctRight(dateStr) {
+  // In RTL: project start (April) = right side = 0%
+  // project end (Aug) = left side = 100%
+  return Math.max(0, Math.min(100, dayOffset(dateStr) / TOTAL_DAYS * 100));
+}
+
+let currentFilter = 'all';
+
+function render() {
+  const gantt = document.getElementById('gantt');
+  const months = getMonths();
+
+  // Grid columns: [num(28px)] [name(200px)] [bars(1fr)] [dates(80px)]
+  // In RTL, num goes on the LEFT (which is the end), name next, then bars, then dates on far right (start of RTL)
+  const COL = '28px 200px 1fr 82px';
+
+  // Filter tasks
+  let filtered = TASKS;
+  if (currentFilter !== 'all') {
+    if (currentFilter === 'Phase 6') {
+      filtered = TASKS.filter(t => t.phase === 'Phase 6' || t.phase === 'Phase 7');
+    } else {
+      filtered = TASKS.filter(t => t.phase === currentFilter);
+    }
+  }
+
+  // Group by phase
+  const phases = [];
+  const seen = new Set();
+  filtered.forEach(t => {
+    if (!seen.has(t.phase)) { phases.push(t.phase); seen.add(t.phase); }
+  });
+
+  let html = '';
+
+  // Month header row
+  html += `<div style="display:grid;grid-template-columns:${COL};margin-bottom:4px;">`;
+  html += `<div></div><div></div>`;
+  html += `<div style="position:relative;height:22px;">`;
+  months.forEach(m => {
+    const r = pctRight(m.toISOString().slice(0,10));
+    const label = m.toLocaleDateString('he-IL', {month:'short', year:'2-digit'});
+    html += `<span style="position:absolute;right:${r}%;font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);white-space:nowrap;transform:translateX(50%);">${label}</span>`;
+    html += `<div class="month-gridline" style="right:${r}%;"></div>`;
+  });
+  html += `</div><div></div></div>`;
+
+  // Separator
+  html += `<div style="height:0.5px;background:var(--border2);margin-bottom:6px;"></div>`;
+
+  phases.forEach(phase => {
+    const phaseTasks = filtered.filter(t => t.phase === phase);
+    const phaseColor = PHASE_COLOR[phase] || '#888';
+    const phaseLabel = phaseTasks[0]?.phaseLabel || phase;
+
+    // Phase header
+    html += `<div style="display:grid;grid-template-columns:${COL};align-items:center;padding:10px 0 6px;border-top:0.5px solid rgba(255,255,255,0.06);margin-top:4px;">`;
+    html += `<div></div>`;
+    html += `<div colspan="3" style="grid-column:2/5;display:flex;align-items:center;gap:10px;">`;
+    html += `<span style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;padding:2px 8px;border-radius:3px;background:${phaseColor}22;color:${phaseColor};border:0.5px solid ${phaseColor}44;">${phase.replace('Phase ','P')}</span>`;
+    html += `<span style="font-size:12px;color:var(--text-secondary);font-weight:400;">${phaseLabel.split('—')[1]?.trim() || ''}</span>`;
+    html += `</div></div>`;
+
+    // Task rows
+    phaseTasks.forEach(task => {
+      const color = STATUS_COLOR[task.status] || '#888';
+      const r = pctRight(task.start);
+      const w = pctWidth(task.start, task.end);
+      const isMilestone = task.start === task.end;
+      const fmt = d => new Date(d).toLocaleDateString('he-IL',{day:'2-digit',month:'2-digit'});
+      const escName = task.name.replace(/'/g,'&apos;').replace(/"/g,'&quot;');
+      const escNote = task.note.replace(/'/g,'&apos;').replace(/"/g,'&quot;');
+
+      html += `<div class="task-row" style="display:grid;grid-template-columns:${COL};"
+        onmouseenter="showTip(event,'${escName}','${task.start}','${task.end}','${task.status}','${escNote}','${color}')"
+        onmouseleave="hideTip()">`;
+      html += `<div class="task-num">${task.num}</div>`;
+      html += `<div class="task-name">${task.name}</div>`;
+      html += `<div class="bar-area">`;
+
+      // Month gridlines
+      months.forEach(m => {
+        const rg = pctRight(m.toISOString().slice(0,10));
+        html += `<div class="month-gridline" style="right:${rg}%;"></div>`;
+      });
+
+      // Today line
+      const todayPct = pctRight('2026-03-31');
+      if (TODAY >= PROJECT_START && TODAY <= PROJECT_END) {
+        html += `<div class="today-marker" style="right:${todayPct}%;"></div>`;
+      }
+
+      // Bar or milestone
+      if (isMilestone) {
+        html += `<div class="milestone" style="right:calc(${r}% - 5px);background:${color};"></div>`;
+      } else {
+        html += `<div class="bar" style="right:${r}%;width:${w}%;background:${color};opacity:0.9;"></div>`;
+      }
+
+      html += `</div>`;
+      html += `<div class="task-dates">${fmt(task.start)}–${fmt(task.end)}</div>`;
+      html += `</div>`;
+    });
+  });
+
+  gantt.innerHTML = html;
+}
+
+function showTip(e, name, start, end, status, note, color) {
+  const tip = document.getElementById('tooltip');
+  const fmt = d => new Date(d).toLocaleDateString('he-IL',{day:'2-digit',month:'long',year:'numeric'});
+  const days = Math.round((new Date(end) - new Date(start)) / 86400000) + 1;
+  tip.innerHTML = `
+    <div class="tooltip-badge" style="background:${color}22;color:${color};border:0.5px solid ${color}44;">${status}</div>
+    <div class="tooltip-name">${name}</div>
+    <div class="tooltip-row">${fmt(start)} ← ${fmt(end)}</div>
+    <div class="tooltip-row">${days} ימים</div>
+    <div class="tooltip-note">${note}</div>
+  `;
+  tip.style.display = 'block';
+  const x = Math.min(e.clientX + 14, window.innerWidth - 280);
+  const y = Math.min(e.clientY - 10, window.innerHeight - 150);
+  tip.style.left = x + 'px';
+  tip.style.top = y + 'px';
+}
+
+function hideTip() {
+  document.getElementById('tooltip').style.display = 'none';
+}
+
+// Filter buttons
+document.getElementById('controls').addEventListener('click', e => {
+  const btn = e.target.closest('.ctrl-btn');
+  if (!btn) return;
+  document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter = btn.dataset.filter;
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
